@@ -7,7 +7,7 @@ import (
 	"github.com/thejohnny5/se_organization/pkg/services"
 )
 
-func AuthenticationMiddleware(next http.Handler) http.Handler {
+func (DB *DBClient) AuthenticationMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenString := r.Header.Get("Authorization")
 
