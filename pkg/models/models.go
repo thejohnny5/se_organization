@@ -8,19 +8,19 @@ import (
 
 type User struct {
 	ID        uint   `gorm:"primaryKey"`
-	UserID    string `gorm:"uniqueIndex;not null"`
-	UserEmail string `gorm:"uniqueIndex;not null"`
+	UserID    string `json:"user_id" gorm:"varchar(30);not null"`
+	UserEmail string `json:"user_email" gorm:"int;not null"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
 type Task struct {
-	ID         uint `gorm:"primaryKey"`
-	UserID     uint // Foreign key for User
-	TaskStatus string
-	Task       string
-	CategoryID uint // Foreign key for Category
+	ID         uint   `gorm:"primaryKey"`
+	UserID     uint   `json:"user_id,omitempty"` // Foreign key for User
+	TaskStatus string `json:"task_status"`
+	Task       string `json:"task,omitempty"`
+	CategoryID *uint  `json:"category_id,omitempty"` // Foreign key for Category
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 	DeletedAt  gorm.DeletedAt `gorm:"index"`
@@ -45,9 +45,9 @@ type JobApplication struct {
 }
 
 type Document struct {
-	ID           uint   `gorm:"primaryKey"`
-	UserID       uint   // Foreign key for User
-	UUID         string `gorm:"uniqueIndex;not null"`
+	ID           uint `gorm:"primaryKey"`
+	UserID       uint // Foreign key for User
+	UUID         int  `gorm:"uniqueIndex;not null"`
 	Path         string
 	Notes        string
 	DocumentName string

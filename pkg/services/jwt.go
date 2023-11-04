@@ -5,12 +5,12 @@ import (
 )
 
 // Returns claims moving forward (user_id)
-func ValidateToken(token string) (string, error) {
+func ValidateToken(token string) (uint, error) {
 	// Look up token in database
 	// for now if token is equal to "user1"
-	if token == "user1" {
-		return "authuser1", nil
+	if token == "Bearer user1" {
+		return 1, nil
 	}
 
-	return "", fmt.Errorf("user is not logged in")
+	return 0, fmt.Errorf("user is not logged in")
 }

@@ -1,7 +1,7 @@
     -- Users Table
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    user_id UUID UNIQUE NOT NULL,
+    user_id varchar(30) UNIQUE NOT NULL,
     user_email VARCHAR(255) UNIQUE NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -11,25 +11,25 @@ CREATE TABLE users (
 -- Categories Table
 CREATE TABLE categories (
     id SERIAL PRIMARY KEY,
-    user_id UUID NOT NULL,
+    user_id INT NOT NULL,
     category VARCHAR(255) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP WITH TIME ZONE,
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 -- Tasks Table
 CREATE TABLE tasks (
     id SERIAL PRIMARY KEY,
-    user_id UUID NOT NULL,
+    user_id INT NOT NULL,
     task_status VARCHAR(50),
     task TEXT NOT NULL,
     category_id INT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP WITH TIME ZONE,
-    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (category_id) REFERENCES categories(id)
 );
 
@@ -55,13 +55,13 @@ CREATE TABLE job_applications (
 -- Documents Table
 CREATE TABLE documents (
     id SERIAL PRIMARY KEY,
-    user_id UUID NOT NULL,
-    uuid UUID UNIQUE NOT NULL,
+    user_id INT NOT NULL,
+    uuid INT UNIQUE NOT NULL,
     path TEXT NOT NULL,
     notes TEXT,
     document_name VARCHAR(255) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP WITH TIME ZONE,
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
