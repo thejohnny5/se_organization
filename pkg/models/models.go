@@ -16,29 +16,30 @@ type User struct {
 }
 
 type Task struct {
-	ID         uint   `gorm:"primaryKey"`
-	UserID     uint   `json:"user_id,omitempty"` // Foreign key for User
-	TaskStatus string `json:"task_status"`
-	Task       string `json:"task,omitempty"`
-	CategoryID *uint  `json:"category_id,omitempty"` // Foreign key for Category
+	ID         uint    `gorm:"primaryKey"`
+	UserID     uint    `json:"user_id"` // Foreign key for User
+	TaskStatus string  `json:"task_status"`
+	Task       *string `json:"task,omitempty"`
+	CategoryID *uint   `json:"category_id,omitempty"` // Foreign key for Category
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 	DeletedAt  gorm.DeletedAt `gorm:"index"`
 }
 
 type JobApplication struct {
-	ID                uint `gorm:"primaryKey"`
-	Company           string
-	Title             string
-	Location          string
-	ApplicationStatus string
-	ApplicationType   string
-	ResumeID          uint // Foreign key for Document
-	CoverLetterID     uint // Foreign key for Document
-	PostingID         string
-	SalaryRange       string
-	ContactID         uint // This could be another model, representing the contact person
-	Notes             string
+	ID                uint    `gorm:"primaryKey"`
+	UserID            uint    `json:"user_id"`
+	Company           string  `json:"company"`
+	Title             string  `json:"title"`
+	Location          *string `json:"location,omitempty"` // Pointer to support omission if empty
+	ApplicationStatus *string `json:"applicationStatus,omitempty"`
+	ApplicationType   *string `json:"applicationType,omitempty"`
+	ResumeID          *uint   `json:"resumeId,omitempty"`      // Pointer to support omission if empty
+	CoverLetterID     *uint   `json:"coverLetterId,omitempty"` // Pointer to support omission if empty
+	PostingID         *string `json:"postingId,omitempty"`
+	SalaryRange       *string `json:"salaryRange,omitempty"`
+	ContactID         *uint   `json:"contactId,omitempty"` // Pointer to support omission if empty
+	Notes             *string `json:"notes,omitempty"`
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
 	DeletedAt         gorm.DeletedAt `gorm:"index"`

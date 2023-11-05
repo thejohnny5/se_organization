@@ -14,6 +14,12 @@ func NewRouter(DB *DBClient) *mux.Router {
 	// API Routes
 	apiRouter.HandleFunc("/tasks", DB.GetTasks).Methods("GET")
 	apiRouter.HandleFunc("/tasks", DB.CreateTask).Methods("POST")
-	//apiRouter.HandleFunc("/job_applications").Methods("GET")
+	apiRouter.HandleFunc("/tasks", DB.UpdateTask).Methods("PUT")
+	apiRouter.HandleFunc("/tasks/{id}", DB.DeleteTask).Methods("DELETE")
+
+	apiRouter.HandleFunc("/job", DB.GetJobs).Methods("GET")
+	apiRouter.HandleFunc("/job", DB.CreateJob).Methods("POST")
+	apiRouter.HandleFunc("/job", DB.UpdateJob).Methods("PUT")
+	apiRouter.HandleFunc("/job/{id}", DB.DeleteJob).Methods("DELETE")
 	return router
 }

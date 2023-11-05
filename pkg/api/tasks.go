@@ -5,7 +5,9 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 
+	"github.com/gorilla/mux"
 	"github.com/thejohnny5/se_organization/pkg/models"
 )
 
@@ -96,22 +98,24 @@ func (db *DBClient) DeleteTask(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error with claims", http.StatusInternalServerError)
 		return
 	}
-	// get request body decodeded
-	body, berr := io.ReadAll(r.Body)
-	defer r.Body.Close()
-	if berr != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+
+	// extract vars
+	vars := mux.Vars(r)
+	idStr, ok := vars["id"]
+	if !ok {
+		http.Error(w, "ID is missing in parameters", http.StatusBadRequest)
 		return
 	}
-	var task models.Task
-	if err := json.Unmarshal(body, &task); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+
+	// Parse the ID to a uint
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
 		return
 	}
-	log.Printf("task details: %+v", task)
 
 	// set user_id to claims.UserID (or could check if they match before deciding)
-	recordToDelete := models.Task{ID: task.ID, UserID: claims.UserID}
+	recordToDelete := models.Task{ID: uint(id), UserID: claims.UserID}
 
 	result := db.DB.Delete(&recordToDelete)
 
@@ -119,6 +123,5 @@ func (db *DBClient) DeleteTask(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(task)
+	w.WriteHeader(http.StatusNoContent)
 }
