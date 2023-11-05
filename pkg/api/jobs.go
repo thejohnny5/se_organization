@@ -48,10 +48,11 @@ func (db *DBClient) CreateJob(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	log.Printf("job details: %+v", job)
 
 	// set user_id to claims.UserID (or could check if they match before deciding)
 	job.UserID = claims.UserID
+	log.Printf("job details: %+v", job)
+
 	result := db.DB.Create(&job)
 	if result.Error != nil {
 		http.Error(w, result.Error.Error(), http.StatusInternalServerError)

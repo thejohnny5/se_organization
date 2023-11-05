@@ -1,0 +1,30 @@
+{
+  "name": "se_organization",
+  "version": "1.0.0",
+  "description": "# TODO * Index database * Build out all middlewares * Consider making structs for specific middlware funcitonality",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/thejohnny5/se_organization.git"
+  },
+  "keywords": [
+    "GO",
+    "Vue",
+    "Vite"
+  ],
+  "author": "Jonathan Gray",
+  "license": "ISC",
+  "dependencies": {
+    "vue": "^3.3.7"
+
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.4.0",
+    "vite": "^4.5.0"
+  }
+}

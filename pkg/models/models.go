@@ -28,7 +28,7 @@ type Task struct {
 
 type JobApplication struct {
 	ID                uint    `gorm:"primaryKey"`
-	UserID            uint    `json:"user_id"`
+	UserID            uint    `json:"user_id"` //Foreign key to User
 	Company           string  `json:"company"`
 	Title             string  `json:"title"`
 	Location          *string `json:"location,omitempty"` // Pointer to support omission if empty

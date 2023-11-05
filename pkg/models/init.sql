@@ -36,7 +36,7 @@ CREATE TABLE tasks (
 -- Job Applications Table
 CREATE TABLE job_applications (
     id SERIAL PRIMARY KEY,
-    user_id INT,
+    user_id INT NOT NULL,
     company VARCHAR(255) NOT NULL,
     title VARCHAR(255) NOT NULL,
     location VARCHAR(255),
@@ -44,7 +44,7 @@ CREATE TABLE job_applications (
     application_type VARCHAR(50),
     resume_id INT,
     cover_letter_id INT,
-    posting_id UUID,
+    posting_url VARCHAR(255),
     salary_range VARCHAR(100),
     contact_id INT,
     notes TEXT,
