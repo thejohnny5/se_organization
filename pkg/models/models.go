@@ -27,21 +27,21 @@ type Task struct {
 }
 
 type JobApplication struct {
-	ID                uint    `gorm:"primaryKey"`
-	UserID            uint    `json:"user_id"` //Foreign key to User
-	Company           string  `json:"company"`
-	Title             string  `json:"title"`
-	Location          *string `json:"location,omitempty"` // Pointer to support omission if empty
-	ApplicationStatus *string `json:"applicationStatus,omitempty"`
-	ApplicationType   *string `json:"applicationType,omitempty"`
-	ResumeID          *uint   `json:"resumeId,omitempty"`      // Pointer to support omission if empty
-	CoverLetterID     *uint   `json:"coverLetterId,omitempty"` // Pointer to support omission if empty
-	PostingID         *string `json:"postingId,omitempty"`
-	SalaryRange       *string `json:"salaryRange,omitempty"`
-	ContactID         *uint   `json:"contactId,omitempty"` // Pointer to support omission if empty
-	Notes             *string `json:"notes,omitempty"`
-	CreatedAt         time.Time
-	UpdatedAt         time.Time
+	ID                uint           `gorm:"primaryKey"`
+	UserID            uint           `json:"user_id"` //Foreign key to User
+	Company           string         `json:"company"`
+	Title             string         `json:"title"`
+	Location          *string        `json:"location,omitempty"` // Pointer to support omission if empty
+	ApplicationStatus *string        `json:"applicationStatus,omitempty"`
+	ApplicationType   *string        `json:"applicationType,omitempty"`
+	ResumeID          *uint          `json:"resumeId,omitempty"`      // Pointer to support omission if empty
+	CoverLetterID     *uint          `json:"coverLetterId,omitempty"` // Pointer to support omission if empty
+	PostingID         *string        `json:"postingId,omitempty"`
+	SalaryRange       *string        `json:"salaryRange,omitempty"`
+	ContactID         *uint          `json:"contactId,omitempty"` // Pointer to support omission if empty
+	Notes             *string        `json:"notes,omitempty"`
+	CreatedAt         time.Time      `json:"created_at,omitempty"`
+	UpdatedAt         time.Time      `json:"updated_at,omitempty"`
 	DeletedAt         gorm.DeletedAt `gorm:"index"`
 }
 
