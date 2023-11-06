@@ -8,12 +8,13 @@
           <th>Title</th>
           <th>Location</th>
           <th>Application Status</th>
-          <th>Application Type</th>
-          <th>URL</th>
+          <th>Additional Details</th>
+          <!-- <th>Application Type</th> -->
+          <!-- <th>URL</th>
           <th>Notes</th>
           <th>Created At</th>
           <th>Updated At</th>
-          <th>Actions</th> <!-- Added Actions header for the delete button -->
+          <th>Actions</th> Added Actions header for the delete button -->
         </tr>
       </thead>
       <tbody>
@@ -47,11 +48,10 @@
             <input v-model="job.notes" @blur="updateJob(job)" />
           </td>
           <td>
-            {{ job.created_at }}
+            <div>Application Type: <input v-model="job.application_type" @blur="updateJob(job)"></div>
+            <div>Applied At: <input v-model="job.applied_at" @blur="updateJob(job)"></div>
           </td>
-          <td>
-            {{ job.updated_at }}
-          </td>
+
           <td>
             <button @click.prevent="deleteJob(job)">Delete</button>
           </td>

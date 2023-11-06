@@ -32,13 +32,13 @@ type JobApplication struct {
 	Company           string         `json:"company"`
 	Title             string         `json:"title"`
 	Location          *string        `json:"location,omitempty"` // Pointer to support omission if empty
-	ApplicationStatus *string        `json:"applicationStatus,omitempty"`
-	ApplicationType   *string        `json:"applicationType,omitempty"`
-	ResumeID          *uint          `json:"resumeId,omitempty"`      // Pointer to support omission if empty
-	CoverLetterID     *uint          `json:"coverLetterId,omitempty"` // Pointer to support omission if empty
-	PostingID         *string        `json:"postingId,omitempty"`
-	SalaryRange       *string        `json:"salaryRange,omitempty"`
-	ContactID         *uint          `json:"contactId,omitempty"` // Pointer to support omission if empty
+	ApplicationStatus *string        `json:"application_status,omitempty"`
+	ApplicationType   *string        `json:"application_type,omitempty"`
+	ResumeID          *uint          `json:"resume_id,omitempty"`       // Pointer to support omission if empty
+	CoverLetterID     *uint          `json:"cover_letter_id,omitempty"` // Pointer to support omission if empty
+	PostingUrl        *string        `json:"posting_url,omitempty"`
+	SalaryRange       *string        `json:"salary_range,omitempty"`
+	ContactID         *uint          `json:"contact_id,omitempty"` // Pointer to support omission if empty
 	Notes             *string        `json:"notes,omitempty"`
 	CreatedAt         time.Time      `json:"created_at,omitempty"`
 	UpdatedAt         time.Time      `json:"updated_at,omitempty"`

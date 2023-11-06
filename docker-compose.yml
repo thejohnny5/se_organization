@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  se_organization:
+    build: .
+    ports:
+      - "9000:8080"
+    # volumes:
+    #   - .:/app

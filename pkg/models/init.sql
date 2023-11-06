@@ -81,3 +81,5 @@ INSERT INTO dropdown (text, table_type) VALUES ('Signed', 'application_status');
 INSERT INTO dropdown (text, table_type) VALUES ('Rejected', 'application_status');
 INSERT INTO dropdown (text, table_type) VALUES ('Declined', 'application_status');
 INSERT INTO dropdown (text, table_type) VALUES ('Lost Contact', 'application_status');
+
+INSERT INTO users (user_id, user_email) VALUES ('5', 'test@gmail.com');
