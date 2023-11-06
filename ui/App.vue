@@ -1,6 +1,5 @@
 <template>
   <div>
-    <form @submit.prevent="submitJob">
     <table>
       <thead>
         <tr>
@@ -8,34 +7,31 @@
           <th>Company</th>
           <th>Title</th>
           <th>Location</th>
+          <th>Application Status</th>
+          <th>Application Type</th>
+          <th>URL</th>
           <th>Notes</th>
           <th>Created At</th>
           <th>Updated At</th>
+          <th>Actions</th> <!-- Added Actions header for the delete button -->
         </tr>
       </thead>
       <tbody>
+        <!-- New Job Application Form Row -->
+        <tr>
         <td>New Job Application</td>
-        <td>
-          <input v-model="currJob.company">
+        <td colspan="7">
+          <form @submit.prevent="submitJob">
+            <input v-model="currJob.company">
+            <input v-model="currJob.title">
+            <input v-model="currJob.location">
+            <input v-model="currJob.notes">
+            <button type="submit">Submit</button>
+          </form>
         </td>
-        <td>
-          <input v-model="currJob.title">
-        </td>
-        <td>
-          <input v-model="currJob.location">
-        </td>
-        <td>
-          <input v-model="currJob.notes">
-        </td>
-        <td>
-          None
-        </td>
-        <td>
-          None
-        </td>
-        <td>
-          <button type="submit">Submit</button>
-        </td>
+      </tr>
+
+        <!-- Existing Jobs -->
         <tr v-for="job in jobs" :key="job.ID">
           <td>{{ job.ID }}</td>
           <td>
@@ -56,10 +52,12 @@
           <td>
             {{ job.updated_at }}
           </td>
+          <td>
+            <button @click.prevent="deleteJob(job)">Delete</button>
+          </td>
         </tr>
       </tbody>
     </table>
-  </form>
   </div>
 </template>
 
@@ -123,11 +121,23 @@ export default defineComponent({
       }
     }
 
+    const deleteJob = async (job) => {
+      try {
+        // remove from database
+        await axios.delete(`/api/job/${job.ID}`)
+        // if successful then remove from page
+        jobs.value = jobs.value.filter(val => val.ID!=job.ID)
+      } catch (error) {
+        console.error('Failed to delete job', error)
+      }
+    }
+
     return {
       jobs,
       updateJob,
       currJob,
-      submitJob
+      submitJob,
+      deleteJob
     };
   }
 });

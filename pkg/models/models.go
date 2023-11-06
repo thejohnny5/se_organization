@@ -20,7 +20,7 @@ type Task struct {
 	UserID     uint    `json:"user_id"` // Foreign key for User
 	TaskStatus string  `json:"task_status"`
 	Task       *string `json:"task,omitempty"`
-	CategoryID *uint   `json:"category_id,omitempty"` // Foreign key for Category
+	DropdownID *uint   `json:"category_id,omitempty"` // Foreign key for Category
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 	DeletedAt  gorm.DeletedAt `gorm:"index"`
@@ -46,21 +46,23 @@ type JobApplication struct {
 }
 
 type Document struct {
-	ID           uint `gorm:"primaryKey"`
-	UserID       uint // Foreign key for User
-	UUID         int  `gorm:"uniqueIndex;not null"`
-	Path         string
-	Notes        string
-	DocumentName string
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-	DeletedAt    gorm.DeletedAt `gorm:"index"`
+	ID               uint `gorm:"primaryKey"`
+	UserID           uint // Foreign key for User
+	OriginalFileName string
+	Path             string
+	TypeOfDocument   string
+	Notes            string
+	DocumentName     string
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+	DeletedAt        gorm.DeletedAt `gorm:"index"`
 }
 
-type Category struct {
+type Dropdown struct {
 	ID        uint `gorm:"primaryKey"`
 	UserID    uint // Foreign key for User
-	Category  string
+	Text      string
+	TableType string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
