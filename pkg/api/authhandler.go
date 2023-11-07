@@ -5,9 +5,9 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/thejohnny5/se_organization/pkg/models"
-	"github.com/thejohnny5/se_organization/pkg/services"
 )
 
 type AuthDBHandler struct {
@@ -28,13 +28,17 @@ const claimsContextKey contextKey = "claims"
 
 func (db *AuthDBHandler) AuthenticationMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		tokenString := r.Header.Get("Authorization")
+		tokenString, err := r.Cookie("session_token")
+		if err != nil {
+			//http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
 		log.Printf("TokenString: %s", tokenString)
 		// if no string
 		// user not logged in error and redirect
-
 		// validate token
-		user_id, err := services.ValidateToken(tokenString)
+		user_id, err := db.ValidateToken(tokenString.Value)
 		if err != nil {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
@@ -58,4 +62,27 @@ func GetClaims(r *http.Request) (Claims, error) {
 		return Claims{}, errors.New("Claims object is not correct type")
 	}
 	return claims, nil
+}
+
+// Returns claims moving forward (user_id)
+func (db *AuthDBHandler) ValidateToken(token string) (uint, error) {
+	// Look up token in database
+	var session models.Session
+
+	response := db.DB.DB.Where("session_token = ?", token).First(&session)
+
+	if response.Error != nil {
+		log.Printf("no user exists for session id: %s", token)
+
+		return 0, errors.New("session does not exist")
+	}
+
+	// Check if the session has expired
+	if session.Expiration.Before(time.Now()) {
+		log.Printf("Session expired for token: %s", token)
+		return 0, errors.New("unauthorized: session expired")
+	}
+
+	// Otherwise return user id
+	return session.UserId, nil
 }

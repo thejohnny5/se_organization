@@ -10,6 +10,17 @@ CREATE TABLE users (
     deleted_at TIMESTAMP WITH TIME ZONE
 );
 
+CREATE TABLE sessions (
+    id SERIAL PRIMARY KEY,
+    session_token UUID UNIQUE NOT NULL,
+    user_id INT NOT NULL,
+    expiration TIMESTAMP WITH ZONE,
+    created_at TIMESTAMP WITH ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP WITH TIME ZONE,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+)
+
 -- Dropdown Table
 CREATE TABLE dropdowns (
     id SERIAL PRIMARY KEY,

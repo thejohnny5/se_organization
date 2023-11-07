@@ -12,6 +12,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/thejohnny5/se_organization/pkg/models"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -78,8 +79,11 @@ func HandleGoogleLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (db *OAuthDBHandler) HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
-	oauthState, _ := r.Cookie("oauthstate")
-
+	oauthState, err := r.Cookie("oauthstate")
+	if err != nil {
+		log.Println("no cookie present on user browser")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+	}
 	if r.FormValue("state") != oauthState.Value {
 		log.Println("invalid oauth google state")
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
@@ -101,7 +105,7 @@ func (db *OAuthDBHandler) HandleGoogleCallback(w http.ResponseWriter, r *http.Re
 	log.Printf("user data: %+v", user)
 
 	// handle the user data
-	if err := db.handleUserLogin(&user); err != nil {
+	if err := db.handleUserLogin(w, &user); err != nil {
 		log.Printf("Error handling user login: %v", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
@@ -111,7 +115,7 @@ func (db *OAuthDBHandler) HandleGoogleCallback(w http.ResponseWriter, r *http.Re
 }
 
 // Check database and create user if needed
-func (db *OAuthDBHandler) handleUserLogin(user *UserInfo) error {
+func (db *OAuthDBHandler) handleUserLogin(w http.ResponseWriter, user *UserInfo) error {
 	var userModel models.User
 	response := db.DB.DB.Where("email = ?", user.Email).First(&userModel)
 
@@ -128,8 +132,9 @@ func (db *OAuthDBHandler) handleUserLogin(user *UserInfo) error {
 		}
 	}
 
-	// Here you should handle session creation.
-	// ...
+	if err := db.startSession(w, &userModel); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -150,4 +155,26 @@ func getUserDataFromGoogle(code string) ([]byte, error) {
 		return nil, fmt.Errorf("failed to read response: %s", err.Error())
 	}
 	return contents, nil
+}
+
+func (db *OAuthDBHandler) startSession(w http.ResponseWriter, user *models.User) error {
+	sessionToken := uuid.NewString() // or another secure random string
+	sessionExpiration := time.Now().Add(12 * time.Hour)
+	result := db.DB.DB.Exec("INSERT INTO sessions (session_token, user_id, expiration) VALUES (?, ?, ?)",
+		sessionToken, user.ID, sessionExpiration)
+	if result.Error != nil {
+		return result.Error
+	}
+	// Set the session token as an HTTP-only cookie
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session_token",
+		Value:    sessionToken,
+		Expires:  sessionExpiration,
+		HttpOnly: true,
+		Secure:   false, // change when using https
+		Path:     "/",
+		SameSite: http.SameSiteLaxMode,
+	})
+
+	return nil
 }

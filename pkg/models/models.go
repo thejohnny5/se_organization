@@ -6,6 +6,15 @@ import (
 	"gorm.io/gorm"
 )
 
+type Session struct {
+	ID           uint      `gorm:"primaryKey"`
+	SessionToken string    `json:"session_token" gorm:"uuid;not null"`
+	UserId       uint      `json:"user_email" gorm:"int;not null"`
+	Expiration   time.Time `json:"expiration"`
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	DeletedAt    gorm.DeletedAt `gorm:"index"`
+}
 type User struct {
 	ID            uint   `gorm:"primaryKey"`
 	GoogleID      string `json:"google_id" gorm:"varchar(30);not null"`
