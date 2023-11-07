@@ -14,12 +14,12 @@ CREATE TABLE sessions (
     id SERIAL PRIMARY KEY,
     session_token UUID UNIQUE NOT NULL,
     user_id INT NOT NULL,
-    expiration TIMESTAMP WITH ZONE,
-    created_at TIMESTAMP WITH ZONE DEFAULT CURRENT_TIMESTAMP,
+    expiration TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP WITH TIME ZONE,
     FOREIGN KEY (user_id) REFERENCES users(id)
-)
+);
 
 -- Dropdown Table
 CREATE TABLE dropdowns (
@@ -105,4 +105,4 @@ INSERT INTO dropdowns (text, table_type) VALUES ('Referral', 'application_type')
 INSERT INTO dropdowns (text, table_type) VALUES ('Inbound', 'application_type');
 INSERT INTO dropdowns (text, table_type) VALUES ('Extra Effort', 'application_type');
 
-INSERT INTO users (user_id, user_email) VALUES ('5', 'test@gmail.com');
+INSERT INTO users (google_id, user_email, verified_email) VALUES ('5', 'test@gmail.com', 'false');

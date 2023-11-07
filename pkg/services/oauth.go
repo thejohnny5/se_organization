@@ -111,7 +111,7 @@ func (db *OAuthDBHandler) HandleGoogleCallback(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+	http.Redirect(w, r, "/home", http.StatusSeeOther)
 }
 
 // Check database and create user if needed

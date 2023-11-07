@@ -34,7 +34,6 @@ func (db *AuthDBHandler) AuthenticationMiddleware(next http.Handler) http.Handle
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
-		log.Printf("TokenString: %s", tokenString)
 		// if no string
 		// user not logged in error and redirect
 		// validate token
