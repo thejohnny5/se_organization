@@ -7,12 +7,14 @@ import (
 )
 
 type User struct {
-	ID        uint   `gorm:"primaryKey"`
-	UserID    string `json:"user_id" gorm:"varchar(30);not null"`
-	UserEmail string `json:"user_email" gorm:"int;not null"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `gorm:"index"`
+	ID            uint   `gorm:"primaryKey"`
+	GoogleID      string `json:"google_id" gorm:"varchar(30);not null"`
+	UserEmail     string `json:"user_email" gorm:"int;not null"`
+	VerifiedEmail bool   `json:"verified_email"`
+	Picture       string `json:"picture"`
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	DeletedAt     gorm.DeletedAt `gorm:"index"`
 }
 
 type Task struct {

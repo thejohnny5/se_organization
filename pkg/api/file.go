@@ -15,10 +15,18 @@ import (
 	"github.com/thejohnny5/se_organization/pkg/models"
 )
 
+type FileDBHandler struct {
+	DB *models.DBClient
+}
+
+func CreateFileDB(db *models.DBClient) *FileDBHandler {
+	return &FileDBHandler{DB: db}
+}
+
 const MAX_UPLOAD_SIZE int64 = 1024 * 1024 * 250 // 250 Mb
 const DIR_PATH string = "uploads"
 
-func (db *DBClient) UploadFile(w http.ResponseWriter, r *http.Request) {
+func (db *FileDBHandler) UploadFile(w http.ResponseWriter, r *http.Request) {
 	// Get user id -> fail early
 	claims, err := GetClaims(r)
 
@@ -76,7 +84,7 @@ func (db *DBClient) UploadFile(w http.ResponseWriter, r *http.Request) {
 	// IF successful, we can write the file to the database
 	// Construct model
 	document := models.Document{UserID: claims.UserID, OriginalFileName: file_name, Path: filePath, TypeOfDocument: type_of_document, DocumentName: document_name, Notes: notes}
-	result := db.DB.Create(&document)
+	result := db.DB.DB.Create(&document)
 	if result.Error != nil {
 		http.Error(w, "Error writing to database", http.StatusInternalServerError)
 		return
@@ -87,7 +95,7 @@ func (db *DBClient) UploadFile(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Upload successful")
 }
 
-func (db *DBClient) GetDocuments(w http.ResponseWriter, r *http.Request) {
+func (db *FileDBHandler) GetDocuments(w http.ResponseWriter, r *http.Request) {
 	claims, err := GetClaims(r)
 
 	if err != nil {
@@ -96,7 +104,7 @@ func (db *DBClient) GetDocuments(w http.ResponseWriter, r *http.Request) {
 	}
 	// Query database for documents
 	var docs []models.Document
-	result := db.DB.Where("user_id=?", claims.UserID).Find(&docs)
+	result := db.DB.DB.Where("user_id=?", claims.UserID).Find(&docs)
 	if result.Error != nil {
 		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
 		return
@@ -107,7 +115,7 @@ func (db *DBClient) GetDocuments(w http.ResponseWriter, r *http.Request) {
 }
 
 // TODO: handle for only PDF
-func (db *DBClient) DownloadDoc(w http.ResponseWriter, r *http.Request) {
+func (db *FileDBHandler) DownloadDoc(w http.ResponseWriter, r *http.Request) {
 	claims, err := GetClaims(r)
 
 	if err != nil {
@@ -123,7 +131,7 @@ func (db *DBClient) DownloadDoc(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	doc := models.Document{ID: uint(id)}
-	result := db.DB.Where("user_id = ?", claims.UserID).First(&doc)
+	result := db.DB.DB.Where("user_id = ?", claims.UserID).First(&doc)
 	if result.Error != nil {
 		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
 		return

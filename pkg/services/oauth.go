@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -11,18 +12,41 @@ import (
 	"os"
 	"time"
 
+	"github.com/thejohnny5/se_organization/pkg/models"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
 
+type OAuthDBHandler struct {
+	DB *models.DBClient
+}
+
+func CreateAuthDB(db *models.DBClient) *OAuthDBHandler {
+	return &OAuthDBHandler{DB: db}
+}
+
+type UserInfo struct {
+	ID            string `json:"id"`
+	Email         string `json:"email"`
+	VerifiedEmail bool   `json:"verified_email"`
+	Picture       string `json:"picture"`
+}
+
 const oauthGoogleUrlAPI = "https://www.googleapis.com/oauth2/v2/userinfo?access_token="
 
-var googleAuthConfig oauth2.Config = oauth2.Config{
-	RedirectURL:  "http://127.0.0.1:8080/callback",
-	ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
-	ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
-	Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
-	Endpoint:     google.Endpoint,
+var googleAuthConfig *oauth2.Config
+
+func GetGoogleAuthConfig() *oauth2.Config {
+	if googleAuthConfig == nil {
+		googleAuthConfig = &oauth2.Config{
+			RedirectURL:  "http://127.0.0.1:8080/oauth/google/callback",
+			ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
+			ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
+			Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
+			Endpoint:     google.Endpoint,
+		}
+	}
+	return googleAuthConfig
 }
 
 func randomizeString(w http.ResponseWriter, numBytes uint) (string, error) {
@@ -48,12 +72,12 @@ func HandleGoogleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	url := googleAuthConfig.AuthCodeURL(oauthStateString)
-
+	log.Printf("google url: %s", url)
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 
 }
 
-func HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
+func (db *OAuthDBHandler) HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	oauthState, _ := r.Cookie("oauthstate")
 
 	if r.FormValue("state") != oauthState.Value {
@@ -68,7 +92,46 @@ func HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println(data)
+	var user UserInfo
+	if err := json.Unmarshal(data, &user); err != nil {
+		log.Printf("Error handling unmarshaling: %v", err)
+		http.Error(w, "couldn't unmarshalll data", http.StatusInternalServerError)
+		return
+	}
+	log.Printf("user data: %+v", user)
+
+	// handle the user data
+	if err := db.handleUserLogin(&user); err != nil {
+		log.Printf("Error handling user login: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+}
+
+// Check database and create user if needed
+func (db *OAuthDBHandler) handleUserLogin(user *UserInfo) error {
+	var userModel models.User
+	response := db.DB.DB.Where("email = ?", user.Email).First(&userModel)
+
+	// Create a new user if not found in the DB
+	if response.Error != nil {
+		userModel.GoogleID = user.ID
+		userModel.UserEmail = user.Email
+		userModel.Picture = user.Picture
+		userModel.VerifiedEmail = user.VerifiedEmail
+
+		result := db.DB.DB.Create(&userModel)
+		if result.Error != nil {
+			return result.Error
+		}
+	}
+
+	// Here you should handle session creation.
+	// ...
+
+	return nil
 }
 
 func getUserDataFromGoogle(code string) ([]byte, error) {

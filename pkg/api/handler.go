@@ -6,8 +6,17 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/thejohnny5/se_organization/pkg/models"
 	"github.com/thejohnny5/se_organization/pkg/services"
 )
+
+type AuthDBHandler struct {
+	DB *models.DBClient
+}
+
+func CreateAuthDB(db *models.DBClient) *AuthDBHandler {
+	return &AuthDBHandler{DB: db}
+}
 
 type Claims struct {
 	UserID uint
@@ -17,7 +26,7 @@ type contextKey string
 
 const claimsContextKey contextKey = "claims"
 
-func (DB *DBClient) AuthenticationMiddleware(next http.Handler) http.Handler {
+func (db *AuthDBHandler) AuthenticationMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenString := r.Header.Get("Authorization")
 		log.Printf("TokenString: %s", tokenString)

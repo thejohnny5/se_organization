@@ -1,8 +1,10 @@
     -- Users Table
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    user_id varchar(30) UNIQUE NOT NULL,
+    google_id varchar(30) UNIQUE NOT NULL,
     user_email VARCHAR(255) UNIQUE NOT NULL,
+    verified_email BOOLEAN,
+    picture varchar(255),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP WITH TIME ZONE
