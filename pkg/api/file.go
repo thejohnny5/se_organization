@@ -146,3 +146,24 @@ func (db *DBClient) DownloadDoc(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+// func (db *DBClient) QueryTypeOfDoc(w http.ResponseWriter, r *http.Request) {
+// 	// Read query string
+// 	claims, err := GetClaims(r)
+
+// 	if err != nil {
+// 		http.Error(w, "Error with claims", http.StatusInternalServerError)
+// 		return
+// 	}
+
+// 	query := r.URL.Query().Get("type_of_document")
+// 	var files []models.Document
+// 	result := db.DB.Where("user_id = ? && type_of_document = ?", claims.UserID, query).Find(files)
+
+// 	if result.Error != nil {
+// 		http.Error(w, result.Error.Error(), http.StatusBadRequest)
+// 		return
+// 	}
+
+// 	json.NewEncoder(w).Encode(files)
+// }

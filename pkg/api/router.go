@@ -20,6 +20,8 @@ func NewRouter(DB *DBClient) *mux.Router {
 	// apiRouter.HandleFunc("/tasks", DB.CreateTask).Methods("POST")
 	// apiRouter.HandleFunc("/tasks", DB.UpdateTask).Methods("PUT")
 	// apiRouter.HandleFunc("/tasks/{id}", DB.DeleteTask).Methods("DELETE")
+	// Dropdowns
+	apiRouter.HandleFunc("/dropdown", DB.GetDropdownOptions).Methods("GET")
 
 	apiRouter.HandleFunc("/job", DB.GetJobs).Methods("GET")
 	apiRouter.HandleFunc("/job", DB.CreateJob).Methods("POST")

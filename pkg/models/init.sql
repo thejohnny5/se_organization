@@ -9,7 +9,7 @@ CREATE TABLE users (
 );
 
 -- Dropdown Table
-CREATE TABLE dropdown (
+CREATE TABLE dropdowns (
     id SERIAL PRIMARY KEY,
     user_id INT,
     text VARCHAR(255) NOT NULL,
@@ -34,6 +34,21 @@ CREATE TABLE tasks (
     FOREIGN KEY (dropdown_id) REFERENCES dropdown(id)
 );
 
+-- Documents Table
+CREATE TABLE documents (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    original_file_name VARCHAR(255) NOT NULL,
+    path TEXT NOT NULL, -- system path
+    notes TEXT,
+    document_name VARCHAR(255) NOT NULL, -- name provided by user to help him/her find it
+    type_of_document VARCHAR(255) NOT NULL, -- type such as resume, CV etc
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP WITH TIME ZONE,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
 -- Job Applications Table
 CREATE TABLE job_applications (
     id SERIAL PRIMARY KEY,
@@ -52,34 +67,29 @@ CREATE TABLE job_applications (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP WITH TIME ZONE,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (resume_id) REFERENCES documents(id),
+    FOREIGN KEY (cover_letter_id) REFERENCES documents(id)
 );
 
--- Documents Table
-CREATE TABLE documents (
-    id SERIAL PRIMARY KEY,
-    user_id INT NOT NULL,
-    original_file_name VARCHAR(255) NOT NULL,
-    path TEXT NOT NULL, -- system path
-    notes TEXT,
-    document_name VARCHAR(255) NOT NULL, -- name provided by user to help him/her find it
-    type_of_document VARCHAR(255) NOT NULL, -- type such as resume, CV etc
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP WITH TIME ZONE,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-);
 
-INSERT INTO dropdown (text, table_type) VALUES ('Ready to apply', 'application_status');
-INSERT INTO dropdown (text, table_type) VALUES ('Applied', 'application_status');
-INSERT INTO dropdown (text, table_type) VALUES ('Followed-up', 'application_status');
-INSERT INTO dropdown (text, table_type) VALUES ('Phone Screen', 'application_status');
-INSERT INTO dropdown (text, table_type) VALUES ('Technical', 'application_status');
-INSERT INTO dropdown (text, table_type) VALUES ('Findal Round/Onsite', 'application_status');
-INSERT INTO dropdown (text, table_type) VALUES ('Offered', 'application_status');
-INSERT INTO dropdown (text, table_type) VALUES ('Signed', 'application_status');
-INSERT INTO dropdown (text, table_type) VALUES ('Rejected', 'application_status');
-INSERT INTO dropdown (text, table_type) VALUES ('Declined', 'application_status');
-INSERT INTO dropdown (text, table_type) VALUES ('Lost Contact', 'application_status');
+
+INSERT INTO dropdowns (text, table_type) VALUES ('Ready to apply', 'application_status');
+INSERT INTO dropdowns (text, table_type) VALUES ('Applied', 'application_status');
+INSERT INTO dropdowns (text, table_type) VALUES ('Followed-up', 'application_status');
+INSERT INTO dropdowns (text, table_type) VALUES ('Phone Screen', 'application_status');
+INSERT INTO dropdowns (text, table_type) VALUES ('Technical', 'application_status');
+INSERT INTO dropdowns (text, table_type) VALUES ('Findal Round/Onsite', 'application_status');
+INSERT INTO dropdowns (text, table_type) VALUES ('Offered', 'application_status');
+INSERT INTO dropdowns (text, table_type) VALUES ('Signed', 'application_status');
+INSERT INTO dropdowns (text, table_type) VALUES ('Rejected', 'application_status');
+INSERT INTO dropdowns (text, table_type) VALUES ('Declined', 'application_status');
+INSERT INTO dropdowns (text, table_type) VALUES ('Lost Contact', 'application_status');
+
+INSERT INTO dropdowns (text, table_type) VALUES ('Traditional', 'application_type');
+INSERT INTO dropdowns (text, table_type) VALUES ('Quick Apply', 'application_type');
+INSERT INTO dropdowns (text, table_type) VALUES ('Referral', 'application_type');
+INSERT INTO dropdowns (text, table_type) VALUES ('Inbound', 'application_type');
+INSERT INTO dropdowns (text, table_type) VALUES ('Extra Effort', 'application_type');
 
 INSERT INTO users (user_id, user_email) VALUES ('5', 'test@gmail.com');

@@ -31,11 +31,11 @@ type JobApplication struct {
 	UserID            uint           `json:"user_id"` //Foreign key to User
 	Company           string         `json:"company"`
 	Title             string         `json:"title"`
-	Location          *string        `json:"location,omitempty"` // Pointer to support omission if empty
-	ApplicationStatus *string        `json:"application_status,omitempty"`
-	ApplicationType   *string        `json:"application_type,omitempty"`
-	ResumeID          *uint          `json:"resume_id,omitempty"`       // Pointer to support omission if empty
-	CoverLetterID     *uint          `json:"cover_letter_id,omitempty"` // Pointer to support omission if empty
+	Location          *string        `json:"location,omitempty"`           // Pointer to support omission if empty
+	ApplicationStatus *uint          `json:"application_status,omitempty"` // FK to dropdowns
+	ApplicationType   *uint          `json:"application_type,omitempty"`   // FK to dropdown
+	ResumeID          *uint          `json:"resume_id,omitempty"`          // Pointer to support omission if empty
+	CoverLetterID     *uint          `json:"cover_letter_id,omitempty"`    // Pointer to support omission if empty
 	PostingUrl        *string        `json:"posting_url,omitempty"`
 	SalaryRange       *string        `json:"salary_range,omitempty"`
 	ContactID         *uint          `json:"contact_id,omitempty"` // Pointer to support omission if empty
@@ -59,8 +59,8 @@ type Document struct {
 }
 
 type Dropdown struct {
-	ID        uint `gorm:"primaryKey"`
-	UserID    uint // Foreign key for User
+	ID        uint  `gorm:"primaryKey"`
+	UserID    *uint `json:"user_id,omitempty"` // Foreign key for User
 	Text      string
 	TableType string
 	CreatedAt time.Time

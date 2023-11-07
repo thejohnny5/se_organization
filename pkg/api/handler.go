@@ -41,7 +41,7 @@ func (DB *DBClient) AuthenticationMiddleware(next http.Handler) http.Handler {
 func GetClaims(r *http.Request) (Claims, error) {
 	claimsVal := r.Context().Value(claimsContextKey)
 	if claimsVal == nil {
-		return Claims{}, errors.New("No Claims Object")
+		return Claims{}, errors.New("no claims object")
 	}
 	// Type assertion
 	claims, ok := claimsVal.(Claims)

@@ -6,6 +6,6 @@ db:
 clean:
 	psql -U postgres -d test -f $(PWD)/pkg/models/clean.sql
 
-run:
-	npm run dev
-	air
+# run:
+# 	npm run dev
+# 	air
