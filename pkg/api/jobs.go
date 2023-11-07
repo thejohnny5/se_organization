@@ -11,7 +11,15 @@ import (
 	"github.com/thejohnny5/se_organization/pkg/models"
 )
 
-func (db *DBClient) GetJobs(w http.ResponseWriter, r *http.Request) {
+type JobsDBHandler struct {
+	DB *models.DBClient
+}
+
+func CreateJobsDB(db *models.DBClient) *JobsDBHandler {
+	return &JobsDBHandler{DB: db}
+}
+
+func (db *JobsDBHandler) GetJobs(w http.ResponseWriter, r *http.Request) {
 	// Grab claims value from context
 	claims, err := GetClaims(r)
 	if err != nil {
@@ -22,7 +30,7 @@ func (db *DBClient) GetJobs(w http.ResponseWriter, r *http.Request) {
 	log.Printf("claims: %+v", claims)
 	// Get jobs associated with user id i in
 	var jobs []models.JobApplication
-	result := db.DB.Where("user_id = ?", claims.UserID).Find(&jobs)
+	result := db.DB.DB.Where("user_id = ?", claims.UserID).Find(&jobs)
 	if result.Error != nil {
 		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
 		return
@@ -30,7 +38,7 @@ func (db *DBClient) GetJobs(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(jobs)
 }
 
-func (db *DBClient) CreateJob(w http.ResponseWriter, r *http.Request) {
+func (db *JobsDBHandler) CreateJob(w http.ResponseWriter, r *http.Request) {
 	claims, err := GetClaims(r)
 	if err != nil {
 		http.Error(w, "Error with claims", http.StatusInternalServerError)
@@ -53,7 +61,7 @@ func (db *DBClient) CreateJob(w http.ResponseWriter, r *http.Request) {
 	job.UserID = claims.UserID
 	log.Printf("job details: %+v", job)
 
-	result := db.DB.Create(&job)
+	result := db.DB.DB.Create(&job)
 	if result.Error != nil {
 		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
 		return
@@ -62,7 +70,7 @@ func (db *DBClient) CreateJob(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(job)
 }
 
-func (db *DBClient) UpdateJob(w http.ResponseWriter, r *http.Request) {
+func (db *JobsDBHandler) UpdateJob(w http.ResponseWriter, r *http.Request) {
 	claims, err := GetClaims(r)
 	if err != nil {
 		http.Error(w, "Error with claims", http.StatusInternalServerError)
@@ -84,7 +92,7 @@ func (db *DBClient) UpdateJob(w http.ResponseWriter, r *http.Request) {
 
 	// set user_id to claims.UserID (or could check if they match before deciding)
 	job.UserID = claims.UserID
-	result := db.DB.Save(&job)
+	result := db.DB.DB.Save(&job)
 	if result.Error != nil {
 		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
 		return
@@ -93,7 +101,7 @@ func (db *DBClient) UpdateJob(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(job)
 }
 
-func (db *DBClient) DeleteJob(w http.ResponseWriter, r *http.Request) {
+func (db *JobsDBHandler) DeleteJob(w http.ResponseWriter, r *http.Request) {
 	claims, err := GetClaims(r)
 	if err != nil {
 		http.Error(w, "Error with claims", http.StatusInternalServerError)
@@ -118,7 +126,7 @@ func (db *DBClient) DeleteJob(w http.ResponseWriter, r *http.Request) {
 	// set user_id to claims.UserID (or could check if they match before deciding)
 	recordToDelete := models.JobApplication{ID: uint(id), UserID: claims.UserID}
 
-	result := db.DB.Delete(&recordToDelete)
+	result := db.DB.DB.Delete(&recordToDelete)
 
 	if result.Error != nil {
 		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
