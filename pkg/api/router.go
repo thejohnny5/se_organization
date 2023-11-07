@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/thejohnny5/se_organization/pkg/services"
 )
 
 func NewRouter(DB *DBClient) *mux.Router {
@@ -12,6 +13,9 @@ func NewRouter(DB *DBClient) *mux.Router {
 	router.Handle("/", http.FileServer(http.Dir("/app/frontend")))
 
 	router.HandleFunc("/api/user/create", DB.CreateUser).Methods("POST")
+	router.HandleFunc("/oauth/google/login", services.HandleGoogleLogin)
+	router.HandleFunc("/oauth/google/callback", services.HandleGoogleCallback)
+
 	// Setup API router to always first verify JWT Token
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	apiRouter.Use(DB.AuthenticationMiddleware)
