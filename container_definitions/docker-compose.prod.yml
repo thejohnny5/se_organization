@@ -2,27 +2,29 @@ version: '3.8'
 
 services:
   se_organization:
-    build: .
+    build:
+      context: ..
+      dockerfile: container_definitions/Dockerfile.prod
+    image: se_org_prod:latest
+    container_name: se_org_prod
     ports:
       - "9000:8080"
     depends_on:
-      - database
+      database:
+        condition: service_healthy
     environment:
       - POSTGRES_HOST=${POSTGRES_HOST}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
       - DB_PORT=${DB_PORT}
-      - mode=docker
-    # Uncomment the following lines if you want to mount your application directory inside the container
-    # This is useful for development but should not be used in a production environment
-    # volumes:
-    #   - .:/app
+      - mode=prod
     networks:
       - se_org_network
 
   database:
     image: postgres:16-alpine
+    container_name: se_org_db
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_DB: ${POSTGRES_DB}
@@ -32,6 +34,11 @@ services:
       - ${PWD}/db/init:/docker-entrypoint-initdb.d
     networks:
       - se_org_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   db_data:

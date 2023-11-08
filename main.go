@@ -23,5 +23,5 @@ func main() {
 	}
 	router := api.NewRouter(db)
 	log.Printf("Starting server on port: 8080")
-	log.Fatal(http.ListenAndServe(":8080", router))
+	log.Fatal(http.ListenAndServe("0.0.0.0:8080", router))
 }

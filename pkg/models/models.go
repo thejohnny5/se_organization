@@ -57,13 +57,13 @@ type JobApplication struct {
 }
 
 type Document struct {
-	ID               uint `gorm:"primaryKey"`
-	UserID           uint // Foreign key for User
-	OriginalFileName string
-	Path             string
-	TypeOfDocument   string
-	Notes            string
-	DocumentName     string
+	ID               uint   `gorm:"primaryKey"`
+	UserID           uint   // Foreign key for User
+	OriginalFileName string `json:"original_file_name"`
+	Path             string `json:"path"`
+	TypeOfDocument   string `json:"type_of_document"`
+	Notes            string `json:"notes"`
+	DocumentName     string `json:"document_name"`
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
 	DeletedAt        gorm.DeletedAt `gorm:"index"`
