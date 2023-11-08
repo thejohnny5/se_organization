@@ -44,7 +44,7 @@ CREATE TABLE tasks (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP WITH TIME ZONE,
     FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (dropdown_id) REFERENCES dropdown(id)
+    FOREIGN KEY (dropdown_id) REFERENCES dropdowns(id)
 );
 
 -- Documents Table
@@ -69,8 +69,8 @@ CREATE TABLE job_applications (
     company VARCHAR(255) NOT NULL,
     title VARCHAR(255) NOT NULL,
     location VARCHAR(255),
-    application_status VARCHAR(50),
-    application_type VARCHAR(50),
+    application_status INT,
+    application_type INT,
     resume_id INT,
     cover_letter_id INT,
     posting_url VARCHAR(255),
@@ -82,7 +82,9 @@ CREATE TABLE job_applications (
     deleted_at TIMESTAMP WITH TIME ZONE,
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (resume_id) REFERENCES documents(id),
-    FOREIGN KEY (cover_letter_id) REFERENCES documents(id)
+    FOREIGN KEY (cover_letter_id) REFERENCES documents(id),
+    FOREIGN KEY (application_status) REFERENCES dropdowns(id),
+    FOREIGN KEY (application_type) REFERENCES dropdowns(id)
 );
 
 
@@ -106,3 +108,4 @@ INSERT INTO dropdowns (text, table_type) VALUES ('Inbound', 'application_type');
 INSERT INTO dropdowns (text, table_type) VALUES ('Extra Effort', 'application_type');
 
 INSERT INTO users (google_id, user_email, verified_email) VALUES ('5', 'test@gmail.com', 'false');
+INSERT INTO sessions (user_id, session_token, expiration) VALUES ('1', '4d48ce83-3b36-4b82-b36b-327a8e2668f4', CURRENT_TIMESTAMP + INTERVAL '1 year');

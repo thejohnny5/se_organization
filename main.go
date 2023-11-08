@@ -14,7 +14,7 @@ import (
 func main() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Printf("not using .env file")
 	}
 	services.GetGoogleAuthConfig()
 	db, err := models.ConnectClient()
@@ -22,6 +22,6 @@ func main() {
 		panic("Can't connect to db")
 	}
 	router := api.NewRouter(db)
-	log.Printf("Starting database on port: 8080")
+	log.Printf("Starting server on port: 8080")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }

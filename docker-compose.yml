@@ -5,5 +5,37 @@ services:
     build: .
     ports:
       - "9000:8080"
+    depends_on:
+      - database
+    environment:
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - DB_PORT=${DB_PORT}
+      - mode=docker
+    # Uncomment the following lines if you want to mount your application directory inside the container
+    # This is useful for development but should not be used in a production environment
     # volumes:
     #   - .:/app
+    networks:
+      - se_org_network
+
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ${PWD}/db/init:/docker-entrypoint-initdb.d
+    networks:
+      - se_org_network
+
+volumes:
+  db_data:
+
+networks:
+  se_org_network:
+    driver: bridge
