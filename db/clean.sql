@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS documents, job_applications, tasks, dropdowns, sessions, users CASCADE;

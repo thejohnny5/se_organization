@@ -1,0 +1,9 @@
+# Stage 1: Build the Vue.js frontend
+FROM node
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY vite.config.js ./
+COPY ui/ ui/
+COPY index.html .
+CMD ["npm", "run", "dev"]

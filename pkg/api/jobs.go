@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -9,9 +10,38 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/thejohnny5/se_organization/pkg/models"
+	"gorm.io/gorm"
 )
 
-func (db *DBClient) GetJobs(w http.ResponseWriter, r *http.Request) {
+type JobApplicationRequest struct {
+	ID                  uint    `json:"id"`
+	Company             string  `json:"company"`
+	Title               string  `json:"title"`
+	Location            *string `json:"location"` // Pointer to support omission if empty
+	ApplicationStatusId *uint   `json:"application_status_id"`
+	ApplicationStatus   string  `json:"application_status"` // FK to dropdowns
+	ApplicationTypeId   *uint   `json:"application_type_id"`
+	ApplicationType     string  `json:"application_type"` // FK to dropdown
+	ResumeId            *uint   `json:"resume_id"`        // Pointer to support omission if empty
+	ResumeName          string  `json:"resume_name"`
+	ResumeDownload      string  `json:"resume_download"`
+	CoverLetterId       *uint   `json:"cover_letter_id"` // Pointer to support omission if empty
+	CoverLetterName     string  `json:"cover_letter_name"`
+	CoverLetterDownload string  `json:"cover_letter_download"`
+	PostingUrl          *string `json:"posting_url"`
+	SalaryRange         *string `json:"salary_range"`
+	Notes               *string `json:"notes"`
+}
+
+type JobsDBHandler struct {
+	DB *models.DBClient
+}
+
+func CreateJobsDB(db *models.DBClient) *JobsDBHandler {
+	return &JobsDBHandler{DB: db}
+}
+
+func (db *JobsDBHandler) GetJobs(w http.ResponseWriter, r *http.Request) {
 	// Grab claims value from context
 	claims, err := GetClaims(r)
 	if err != nil {
@@ -22,15 +52,38 @@ func (db *DBClient) GetJobs(w http.ResponseWriter, r *http.Request) {
 	log.Printf("claims: %+v", claims)
 	// Get jobs associated with user id i in
 	var jobs []models.JobApplication
-	result := db.DB.Where("user_id = ?", claims.UserID).Find(&jobs)
-	if result.Error != nil {
-		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
+	if err := db.PreloadDocument(claims, &jobs).Error; err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	json.NewEncoder(w).Encode(jobs)
+	log.Printf("%+v", jobs)
+
+	jobs_json := make([]JobApplicationRequest, len(jobs))
+	for i, job := range jobs {
+		jobs_json[i] = JobApplicationRequest{
+			ID:                  job.ID,
+			Company:             job.Company,
+			Title:               job.Title,
+			Location:            job.Location,
+			ApplicationStatusId: job.ApplicationStatusId,
+			ApplicationStatus:   job.ApplicationStatus.Text,
+			ApplicationTypeId:   job.ApplicationTypeId,
+			ApplicationType:     job.ApplicationType.Text,
+			ResumeId:            job.ResumeId,
+			ResumeName:          job.Resume.DocumentName,
+			ResumeDownload:      fmt.Sprintf("/api/document/%d/download", job.ResumeId),
+			CoverLetterId:       job.CoverLetterId,
+			CoverLetterName:     job.CoverLetter.DocumentName,
+			CoverLetterDownload: fmt.Sprintf("/api/document/%d/download", job.CoverLetterId),
+			PostingUrl:          job.PostingUrl,
+			SalaryRange:         job.SalaryRange,
+			Notes:               job.Notes,
+		}
+	}
+	json.NewEncoder(w).Encode(jobs_json)
 }
 
-func (db *DBClient) CreateJob(w http.ResponseWriter, r *http.Request) {
+func (db *JobsDBHandler) CreateJob(w http.ResponseWriter, r *http.Request) {
 	claims, err := GetClaims(r)
 	if err != nil {
 		http.Error(w, "Error with claims", http.StatusInternalServerError)
@@ -43,26 +96,38 @@ func (db *DBClient) CreateJob(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	var job models.JobApplication
-	if err := json.Unmarshal(body, &job); err != nil {
+	var job_json JobApplicationRequest
+	if err := json.Unmarshal(body, &job_json); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// set user_id to claims.UserID (or could check if they match before deciding)
-	job.UserID = claims.UserID
-	log.Printf("job details: %+v", job)
+	job := models.JobApplication{
+		UserID:              claims.UserID,
+		Company:             job_json.Company,
+		Title:               job_json.Title,
+		Location:            job_json.Location,
+		ApplicationStatusId: job_json.ApplicationStatusId,
+		ApplicationTypeId:   job_json.ApplicationTypeId,
+		ResumeId:            job_json.ResumeId,
+		CoverLetterId:       job_json.CoverLetterId,
+		PostingUrl:          job_json.PostingUrl,
+		SalaryRange:         job_json.SalaryRange,
+		Notes:               job_json.Notes,
+	}
 
-	result := db.DB.Create(&job)
+	result := db.DB.DB.Create(&job)
 	if result.Error != nil {
 		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
 		return
 	}
+	job_json.ID = job.ID
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(job)
+	json.NewEncoder(w).Encode(job_json)
 }
 
-func (db *DBClient) UpdateJob(w http.ResponseWriter, r *http.Request) {
+func (db *JobsDBHandler) UpdateJob(w http.ResponseWriter, r *http.Request) {
 	claims, err := GetClaims(r)
 	if err != nil {
 		http.Error(w, "Error with claims", http.StatusInternalServerError)
@@ -75,16 +140,29 @@ func (db *DBClient) UpdateJob(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	var job models.JobApplication
-	if err := json.Unmarshal(body, &job); err != nil {
+	var job_json models.JobApplication
+	if err := json.Unmarshal(body, &job_json); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	log.Printf("job details: %+v", job)
+
+	job := models.JobApplication{
+		UserID:              claims.UserID,
+		Company:             job_json.Company,
+		Title:               job_json.Title,
+		Location:            job_json.Location,
+		ApplicationStatusId: job_json.ApplicationStatusId,
+		ApplicationTypeId:   job_json.ApplicationTypeId,
+		ResumeId:            job_json.ResumeId,
+		CoverLetterId:       job_json.CoverLetterId,
+		PostingUrl:          job_json.PostingUrl,
+		SalaryRange:         job_json.SalaryRange,
+		Notes:               job_json.Notes,
+	}
 
 	// set user_id to claims.UserID (or could check if they match before deciding)
 	job.UserID = claims.UserID
-	result := db.DB.Save(&job)
+	result := db.DB.DB.Save(&job)
 	if result.Error != nil {
 		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
 		return
@@ -93,7 +171,7 @@ func (db *DBClient) UpdateJob(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(job)
 }
 
-func (db *DBClient) DeleteJob(w http.ResponseWriter, r *http.Request) {
+func (db *JobsDBHandler) DeleteJob(w http.ResponseWriter, r *http.Request) {
 	claims, err := GetClaims(r)
 	if err != nil {
 		http.Error(w, "Error with claims", http.StatusInternalServerError)
@@ -118,11 +196,15 @@ func (db *DBClient) DeleteJob(w http.ResponseWriter, r *http.Request) {
 	// set user_id to claims.UserID (or could check if they match before deciding)
 	recordToDelete := models.JobApplication{ID: uint(id), UserID: claims.UserID}
 
-	result := db.DB.Delete(&recordToDelete)
+	result := db.DB.DB.Delete(&recordToDelete)
 
 	if result.Error != nil {
 		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (db *JobsDBHandler) PreloadDocument(claims Claims, jobs *[]models.JobApplication) *gorm.DB {
+	return db.DB.DB.Preload("ApplicationStatus").Preload("ApplicationType").Preload("Resume").Preload("CoverLetter").Where("user_id = ?", claims.UserID).Find(&jobs)
 }

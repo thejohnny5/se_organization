@@ -11,7 +11,15 @@ import (
 	"github.com/thejohnny5/se_organization/pkg/models"
 )
 
-func (db *DBClient) GetTasks(w http.ResponseWriter, r *http.Request) {
+type TaskDBHandler struct {
+	DB *models.DBClient
+}
+
+func CreateTaskDB(db *models.DBClient) *TaskDBHandler {
+	return &TaskDBHandler{DB: db}
+}
+
+func (db *TaskDBHandler) GetTasks(w http.ResponseWriter, r *http.Request) {
 	// Grab claims value from context
 	claims, err := GetClaims(r)
 	if err != nil {
@@ -22,7 +30,7 @@ func (db *DBClient) GetTasks(w http.ResponseWriter, r *http.Request) {
 	log.Printf("claims: %+v", claims)
 	// Get Tasks associated with user id i in
 	var tasks []models.Task
-	result := db.DB.Where("user_id = ?", claims.UserID).Find(&tasks)
+	result := db.DB.DB.Where("user_id = ?", claims.UserID).Find(&tasks)
 	if result.Error != nil {
 		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
 		return
@@ -30,7 +38,7 @@ func (db *DBClient) GetTasks(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(tasks)
 }
 
-func (db *DBClient) CreateTask(w http.ResponseWriter, r *http.Request) {
+func (db *TaskDBHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 	claims, err := GetClaims(r)
 	if err != nil {
 		http.Error(w, "Error with claims", http.StatusInternalServerError)
@@ -52,7 +60,7 @@ func (db *DBClient) CreateTask(w http.ResponseWriter, r *http.Request) {
 
 	// set user_id to claims.UserID (or could check if they match before deciding)
 	task.UserID = claims.UserID
-	result := db.DB.Create(&task)
+	result := db.DB.DB.Create(&task)
 	if result.Error != nil {
 		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
 		return
@@ -61,7 +69,7 @@ func (db *DBClient) CreateTask(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(task)
 }
 
-func (db *DBClient) UpdateTask(w http.ResponseWriter, r *http.Request) {
+func (db *TaskDBHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	claims, err := GetClaims(r)
 	if err != nil {
 		http.Error(w, "Error with claims", http.StatusInternalServerError)
@@ -83,7 +91,7 @@ func (db *DBClient) UpdateTask(w http.ResponseWriter, r *http.Request) {
 
 	// set user_id to claims.UserID (or could check if they match before deciding)
 	task.UserID = claims.UserID
-	result := db.DB.Save(&task)
+	result := db.DB.DB.Save(&task)
 	if result.Error != nil {
 		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
 		return
@@ -92,7 +100,7 @@ func (db *DBClient) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(task)
 }
 
-func (db *DBClient) DeleteTask(w http.ResponseWriter, r *http.Request) {
+func (db *TaskDBHandler) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	claims, err := GetClaims(r)
 	if err != nil {
 		http.Error(w, "Error with claims", http.StatusInternalServerError)
@@ -117,7 +125,7 @@ func (db *DBClient) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	// set user_id to claims.UserID (or could check if they match before deciding)
 	recordToDelete := models.Task{ID: uint(id), UserID: claims.UserID}
 
-	result := db.DB.Delete(&recordToDelete)
+	result := db.DB.DB.Delete(&recordToDelete)
 
 	if result.Error != nil {
 		http.Error(w, result.Error.Error(), http.StatusInternalServerError)

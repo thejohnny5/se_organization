@@ -102,7 +102,6 @@ export default defineComponent({
     };
 
 
-
     const submitJob = async () => {
       try{
         const result = await axios.post(`/api/job`, currJob.value);

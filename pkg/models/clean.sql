@@ -1,1 +1,0 @@
-DROP TABLE IF EXISTS documents, job_applications, tasks, categories, users;
