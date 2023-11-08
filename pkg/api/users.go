@@ -54,10 +54,3 @@ func (db *UserDBHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(user)
 }
-
-func (db *UserDBHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
-	// Read jwt token from request by google
-	// verify jwt token against private key
-	// if not correct, fail
-	// else set token on user browser
-}

@@ -33,8 +33,8 @@
         </tr>
   
           <!-- Existing Jobs -->
-          <tr v-for="job in jobs" :key="job.ID">
-            <td>{{ job.ID }}</td>
+          <tr v-for="job in jobs" :key="job.id">
+            <td>{{ job.id }}</td>
             <td>
               <input v-model="job.company" @blur="updateJob(job)" />
             </td>
