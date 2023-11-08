@@ -7,6 +7,11 @@ import (
 	"github.com/thejohnny5/se_organization/pkg/models"
 )
 
+type DropDownRequest struct {
+	ID        uint   `json:"id"`
+	TableType string `json:"table_type"`
+	Text      string `json:"text"`
+}
 type DropDownDBHandler struct {
 	DB *models.DBClient
 }
@@ -25,10 +30,21 @@ func (db *DropDownDBHandler) GetDropdownOptions(w http.ResponseWriter, r *http.R
 	tableType := r.URL.Query().Get("tabletype")
 
 	result := db.DB.DB.Where("user_id is NULL").Where("table_type=?", tableType).Find(&dd)
+
 	if result.Error != nil {
 		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	dropdown_return := make([]DropDownRequest, len(dd))
+	for i, drop := range dd {
+		dropdown_return[i] = DropDownRequest{
+			ID:        drop.ID,
+			TableType: drop.TableType,
+			Text:      drop.Text,
+		}
+	}
+
 	w.Header().Set("Content-type", "application/json")
-	json.NewEncoder(w).Encode(dd)
+	json.NewEncoder(w).Encode(dropdown_return)
 }

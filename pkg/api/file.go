@@ -15,6 +15,15 @@ import (
 	"github.com/thejohnny5/se_organization/pkg/models"
 )
 
+type FileRequestType struct {
+	ID               uint   `json:"id"`
+	OriginalFileName string `json:"original_file_name"`
+	TypeOfDocument   string `json:"type_of_document"`
+	DocumentName     string `json:"document_name"`
+	Notes            string `json:"notes"`
+	DownloadPath     string `json:"download_path"`
+}
+
 type FileDBHandler struct {
 	DB *models.DBClient
 }
@@ -110,8 +119,20 @@ func (db *FileDBHandler) GetDocuments(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	docsReturn := make([]FileRequestType, len(docs))
+
+	for i, doc := range docs {
+		docsReturn[i] = FileRequestType{
+			ID:               doc.ID,
+			OriginalFileName: doc.OriginalFileName,
+			TypeOfDocument:   doc.TypeOfDocument,
+			Notes:            doc.Notes,
+			DownloadPath:     fmt.Sprintf("/api/document/%v/download", doc.ID),
+		}
+	}
+
 	// encode and return results
-	json.NewEncoder(w).Encode(docs)
+	json.NewEncoder(w).Encode(docsReturn)
 }
 
 // TODO: handle for only PDF

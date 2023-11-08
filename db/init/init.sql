@@ -69,8 +69,8 @@ CREATE TABLE job_applications (
     company VARCHAR(255) NOT NULL,
     title VARCHAR(255) NOT NULL,
     location VARCHAR(255),
-    application_status INT,
-    application_type INT,
+    application_status_id INT,
+    application_type_id INT,
     resume_id INT,
     cover_letter_id INT,
     posting_url VARCHAR(255),
@@ -83,8 +83,8 @@ CREATE TABLE job_applications (
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (resume_id) REFERENCES documents(id),
     FOREIGN KEY (cover_letter_id) REFERENCES documents(id),
-    FOREIGN KEY (application_status) REFERENCES dropdowns(id),
-    FOREIGN KEY (application_type) REFERENCES dropdowns(id)
+    FOREIGN KEY (application_status_id) REFERENCES dropdowns(id),
+    FOREIGN KEY (application_type_id) REFERENCES dropdowns(id)
 );
 
 
