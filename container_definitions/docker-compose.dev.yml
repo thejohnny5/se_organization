@@ -27,7 +27,7 @@ services:
     container_name: backend_dev
     image: se_org_dev_backend
     ports:
-      - "9001:8080"
+      - "8080:8080"
     depends_on:
       testdb:
         condition: service_healthy
@@ -38,6 +38,8 @@ services:
       - POSTGRES_DB=test
       - DB_PORT=${DB_PORT}
       - mode=prod
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
     volumes:
       - ${PWD}/pkg:/app/pkg
     networks:

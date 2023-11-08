@@ -26,6 +26,7 @@ func NewRouter(DB *models.DBClient) *mux.Router {
 	// Setup API router to always first verify JWT Token
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	apiRouter.Use(authHandler.AuthenticationMiddleware)
+	apiRouter.HandleFunc("/validate", validate).Methods("GET")
 	// API Routes
 	// apiRouter.HandleFunc("/tasks", DB.GetTasks).Methods("GET")
 	// apiRouter.HandleFunc("/tasks", DB.CreateTask).Methods("POST")
@@ -43,4 +44,8 @@ func NewRouter(DB *models.DBClient) *mux.Router {
 	apiRouter.HandleFunc("/document", documentHandler.GetDocuments).Methods("GET")
 	apiRouter.HandleFunc("/document/{id}/download", documentHandler.DownloadDoc).Methods("GET")
 	return router
+}
+
+func validate(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
 }

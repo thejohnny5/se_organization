@@ -8,7 +8,7 @@ services:
     image: se_org_prod:latest
     container_name: se_org_prod
     ports:
-      - "9000:8080"
+      - "8080:8080"
     depends_on:
       database:
         condition: service_healthy
