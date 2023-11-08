@@ -102,7 +102,6 @@ func (db *OAuthDBHandler) HandleGoogleCallback(w http.ResponseWriter, r *http.Re
 		http.Error(w, "couldn't unmarshalll data", http.StatusInternalServerError)
 		return
 	}
-	log.Printf("user data: %+v", user)
 
 	// handle the user data
 	if err := db.handleUserLogin(w, &user); err != nil {
@@ -111,14 +110,13 @@ func (db *OAuthDBHandler) HandleGoogleCallback(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	http.Redirect(w, r, "/home", http.StatusSeeOther)
+	http.Redirect(w, r, "http://localhost:9002/", http.StatusSeeOther)
 }
 
 // Check database and create user if needed
 func (db *OAuthDBHandler) handleUserLogin(w http.ResponseWriter, user *UserInfo) error {
 	var userModel models.User
-	response := db.DB.DB.Where("email = ?", user.Email).First(&userModel)
-
+	response := db.DB.DB.Where("user_email = ?", user.Email).First(&userModel)
 	// Create a new user if not found in the DB
 	if response.Error != nil {
 		userModel.GoogleID = user.ID

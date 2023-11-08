@@ -30,3 +30,6 @@ clean:
 
 build_docker:
 	docker compose --env-file .env up
+
+connect:
+	psql -h localhost -p 9003 -U postgres -d test
