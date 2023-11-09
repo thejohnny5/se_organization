@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/thejohnny5/se_organization/pkg/models"
+	"github.com/thejohnny5/se_organization/pkg/services"
 	"gorm.io/gorm"
 )
 
@@ -207,4 +209,65 @@ func (db *JobsDBHandler) DeleteJob(w http.ResponseWriter, r *http.Request) {
 
 func (db *JobsDBHandler) PreloadDocument(claims Claims, jobs *[]models.JobApplication) *gorm.DB {
 	return db.DB.DB.Preload("ApplicationStatus").Preload("ApplicationType").Preload("Resume").Preload("CoverLetter").Where("user_id = ?", claims.UserID).Find(&jobs)
+}
+
+func (db *JobsDBHandler) DownloadCSV(w http.ResponseWriter, r *http.Request) {
+	claims, err := GetClaims(r)
+	if err != nil {
+		http.Error(w, "Error with claims", http.StatusInternalServerError)
+		return
+	}
+	// Get all Record for the current user
+	var jobs []models.JobApplication
+	if err := db.DB.DB.Where("user_id = ?", claims.UserID).Find(&jobs).Error; err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	log.Printf("jobs: +%v", jobs)
+	w.Header().Set("Content-Type", "text/csv")
+	w.Header().Set("Content-Disposition", "attachment;filename=job-apps.csv")
+
+	services.WriteJobsToClient(w, &jobs)
+}
+
+func (db *JobsDBHandler) UploadCSV(w http.ResponseWriter, r *http.Request) {
+	claims, err := GetClaims(r)
+	if err != nil {
+		http.Error(w, "Error with claims", http.StatusInternalServerError)
+		return
+	}
+
+	// Limit file size and parse form
+	r.Body = http.MaxBytesReader(w, r.Body, MAX_UPLOAD_SIZE)
+	if err := r.ParseMultipartForm(MAX_UPLOAD_SIZE); err != nil {
+		http.Error(w, "The uploaded file is too big.", http.StatusBadRequest)
+		return
+	}
+
+	mappings := []services.JobHeaderMap{}
+	mappingJSON := r.FormValue("headerMapping")
+
+	if err := json.Unmarshal([]byte(mappingJSON), &mappings); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	log.Printf("MappingJSON: %v", mappingJSON)
+	log.Printf("mappings: %+v", mappings)
+	file, _, err := r.FormFile("uploadFile")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	// Create a CSV reader and read the first row (headers)
+	csvReader := csv.NewReader(file)
+
+	if err := services.WriteJobsToDB(csvReader, mappings, &claims.UserID); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Write([]byte("CSV Uploaded"))
+
 }

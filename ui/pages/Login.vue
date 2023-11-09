@@ -33,7 +33,7 @@
   
       const loginWithGoogle = () => {
         // Implement your login logic here
-        router.push('/oauth/google/login'); // Use router to navigate
+        window.location.href='/oauth/google/login'; // Use router to navigate
       };
   
       const loginWithGithub = () => {
