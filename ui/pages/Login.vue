@@ -82,6 +82,7 @@
     color: white;
     max-width: 400px;
     padding: 40px;
+    border: 1px solid #0eaf51;
     border-radius: 8px;
     background-color: #1f1f1f;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -90,11 +91,13 @@
   .title {
     margin-bottom: 10px;
     font-size: 2.5em;
+    font-family: Arial, Helvetica, sans-serif;
   }
   
   .subtitle {
     margin-bottom: 20px;
     color: #aaaaaa;
+    font-family: Arial, Helvetica, sans-serif;
   }
   
   .login-button {
@@ -111,11 +114,11 @@
   }
   
   .google {
-    background-color: #db4437;
+    background-color: #0eaf51;
   }
   
   .google:hover {
-    background-color: #e57373;
+    background-color: #44d07e;
   }
   
   .github {

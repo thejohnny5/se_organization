@@ -1,6 +1,6 @@
 <template>
     <div>
-      <table>
+      <table class="table">
         <thead>
           <tr>
             <th>ID</th>
@@ -23,11 +23,11 @@
           <td>New Job Application</td>
           <td colspan="7">
             <form @submit.prevent="submitJob">
-              <input v-model="currJob.company">
-              <input v-model="currJob.title">
-              <input v-model="currJob.location">
-              <input v-model="currJob.notes">
-              <button type="submit">Submit</button>
+              Company <input v-model="currJob.company" class="input">
+              Title <input v-model="currJob.title" class="input">
+              Location <input v-model="currJob.location" class="input">
+              Notes <input v-model="currJob.notes" class="input">
+              <button type="submit" class="button submit">Submit</button>
             </form>
           </td>
         </tr>
@@ -147,5 +147,47 @@
   body {
     background-color: #121212;
     color: #ffffff;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  .button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  .submit {
+    background-color: #0eaf51;
+  }
+
+  .submit:hover {
+    background-color: #44d07e;
+  }
+
+  .input {
+    display: block;
+    width: 95%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #0eaf51;
+    border-radius: 4px;
+    background-color: #1f1f1f;
+    color: #ffffff;
+    font-size: 1em;
+  }
+
+  .table {
+    border: 1px solid red;
+  }
+
+  .tr {
+    border: 1px solid blue;
   }
   </style>
