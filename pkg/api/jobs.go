@@ -31,7 +31,8 @@ type JobApplicationRequest struct {
 	CoverLetterName     string  `json:"cover_letter_name"`
 	CoverLetterDownload string  `json:"cover_letter_download"`
 	PostingUrl          *string `json:"posting_url"`
-	SalaryRange         *string `json:"salary_range"`
+	SalaryLow           *int    `json:"salary_low"`
+	SalaryHigh          *int    `json:"salary_high"`
 	Notes               *string `json:"notes"`
 }
 
@@ -76,7 +77,8 @@ func (db *JobsDBHandler) GetJobs(w http.ResponseWriter, r *http.Request) {
 			CoverLetterName:     job.CoverLetter.DocumentName,
 			CoverLetterDownload: fmt.Sprintf("/api/document/%d/download", job.CoverLetterId),
 			PostingUrl:          job.PostingUrl,
-			SalaryRange:         job.SalaryRange,
+			SalaryLow:           job.SalaryLow,
+			SalaryHigh:          job.SalaryHigh,
 			Notes:               job.Notes,
 		}
 	}
@@ -97,11 +99,12 @@ func (db *JobsDBHandler) CreateJob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var job_json JobApplicationRequest
+
 	if err := json.Unmarshal(body, &job_json); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
+	log.Printf("job: %+v", job_json)
 	// set user_id to claims.UserID (or could check if they match before deciding)
 	job := models.JobApplication{
 		UserID:              claims.UserID,
@@ -113,7 +116,8 @@ func (db *JobsDBHandler) CreateJob(w http.ResponseWriter, r *http.Request) {
 		ResumeId:            job_json.ResumeId,
 		CoverLetterId:       job_json.CoverLetterId,
 		PostingUrl:          job_json.PostingUrl,
-		SalaryRange:         job_json.SalaryRange,
+		SalaryLow:           job_json.SalaryLow,
+		SalaryHigh:          job_json.SalaryHigh,
 		Notes:               job_json.Notes,
 	}
 
@@ -157,7 +161,8 @@ func (db *JobsDBHandler) UpdateJob(w http.ResponseWriter, r *http.Request) {
 		ResumeId:            job_json.ResumeId,
 		CoverLetterId:       job_json.CoverLetterId,
 		PostingUrl:          job_json.PostingUrl,
-		SalaryRange:         job_json.SalaryRange,
+		SalaryLow:           job_json.SalaryLow,
+		SalaryHigh:          job_json.SalaryHigh,
 		Notes:               job_json.Notes,
 	}
 

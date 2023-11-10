@@ -12,7 +12,7 @@ import (
 )
 
 var headers []string = []string{"id", "company", "title", "location", "application_status",
-	"application_type", "resume", "cover_letter", "posting_url", "salary_range", "notes"}
+	"application_type", "resume", "cover_letter", "posting_url", "salary_low", "salary_high", "notes"}
 var set = genSet(headers)
 
 func genSet(arr []string) map[string]struct{} {
@@ -73,7 +73,8 @@ func WriteJobsToClient(w http.ResponseWriter, jobs *[]models.JobApplication) {
 			job.Resume.DocumentName,
 			job.CoverLetter.DocumentName,
 			safeDeref(job.PostingUrl),
-			safeDeref(job.SalaryRange),
+			safeDerefInt(job.SalaryLow),
+			safeDerefInt(job.SalaryHigh),
 			safeDeref(job.Notes),
 		}
 		if err := csvWriter.Write(line); err != nil {
@@ -88,6 +89,14 @@ func WriteJobsToClient(w http.ResponseWriter, jobs *[]models.JobApplication) {
 		return
 	}
 }
+
+func safeDerefInt(i *int) string {
+	if i != nil {
+		return strconv.Itoa(*i)
+	}
+	return ""
+}
+
 func safeDeref(s *string) string {
 	if s != nil {
 		return *s

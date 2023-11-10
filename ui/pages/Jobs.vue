@@ -11,8 +11,49 @@
         <th class="w-1/4 px-4 py-2">Notes</th>
         <th class="w-1/8 px-4 py-2">Actions</th>
       </tr>
+      <!-- This is for the submission form -->
+      <tr v-if="showSubmitRow" class="bg-gray-400 border-b border-gray-700">
+      <td class="border px-2 py-2">
+        <input v-model="jobToSubmit.company" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" >
+      </td>
+
+      <td class="border px-2 py-2">
+        <input v-model="jobToSubmit.title" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" >
+        <input v-model="jobToSubmit.posting_url" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full mt-2" >
+      </td>
+
+      <td class="border px-2 py-2">
+        <input v-model="jobToSubmit.location" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" >
+      </td>
+
+      <td class="border px-2 py-2">
+        <select v-model="jobToSubmit.application_status_id" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full">
+            <option v-for="status of appStatus" :key="status.id" :value="status.id">{{ status.text }}</option>
+        </select> 
+      </td>
+      <td class="border px-2 py-2">
+        <select v-model="jobToSubmit.application_type_id" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full">
+            <option v-for="status of appType" :key="status.id" :value="status.id">{{ status.text }}</option>
+        </select> 
+      </td>
+
+      <td class="border px-1 py-2">
+        <input v-model="jobToSubmit.salary_low" type="number" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" />
+        <input v-model="jobToSubmit.salary_high" type="number" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full mt-2" />
+      </td>
+
+      <td class="border px-2 py-2">
+        <input v-model="jobToSubmit.notes" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" >
+      </td>
+
+      <td class="border px-2 py-2">
+        <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full" @click="submitJob">Submit</button>
+        <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full" @click="clearJobForm">Cancel</button>
+      </td>
+    </tr>
+
       <tr v-for="(job, index) in jobs" :key="job.id" class="bg-gray-600 border-b border-gray-700">
-        <td class="border px-4 py-2">
+        <td class="border px-2 py-2">
           <div v-if="!job.isEditing">
             {{ job.company }}
           </div>
@@ -22,7 +63,7 @@
         </td>
 
 
-        <td class="border px-4 py-2">
+        <td class="border px-2 py-2">
           <div v-if="!job.isEditing">
             <a :href="formatUrl(job.posting_url)" target="_blank">{{ job.title }}</a>
           </div>
@@ -32,8 +73,14 @@
           </div>
         </td>
 
-        <td class="border px-4 py-2" v-if="!job.isEditing">{{ job.location }}</td>
-        <td v-else><input v-model="job.editData.location" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" /></td>
+        <td class="border px-2 py-2">
+          <div v-if="!job.isEditing">
+            {{ job.location }}
+          </div>
+          <div v-else>
+            <input v-model="job.editData.location" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" />
+          </div>
+        </td>
 
         <td class="border px-4 py-2" v-if="!job.isEditing">{{ job.application_status }}</td>
         <td v-else>
@@ -49,25 +96,30 @@
           </select>
         </td>
 
-        <td class="border px-4 py-2">
-          <div v-if="!job.isEditing">{{ job.salary_range }}</div>
+        <td class="border px-1 py-2">
+          <div v-if="!job.isEditing">${{ job.salary_low }}-{{ job.salary_high }}</div>
           <div v-else>
-            <input v-model="job.editData.salary_range" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full mt-2" />
-            <input v-model="job.editData.salary_range" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full mt-2" />
+            <input v-model="job.editData.salary_low" type="number" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" />
+            <input v-model="job.editData.salary_high" type="number" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full mt-2" />
           </div>
         </td>
 
-        <td class="border px-4 py-2" v-if="!job.isEditing">{{ job.notes }}</td>
-        <td v-else><input v-model="job.editData.notes" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" /></td>
+        <td class="border px-1 py-1">
+          <div v-if="!job.isEditing">{{ job.notes }}</div>
+          <div v-else>
+            <input v-model="job.editData.notes" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" />
+          </div>
+        </td>
 
-        <td>
+        <td class="border">
           <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full" v-if="!job.isEditing" @click="toggleEdit(index)">Edit</button>
+          <button class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded w-full" v-if="!job.isEditing" @click="deleteJob(index)">Delete</button>
           <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full" v-else @click="updateJob(index)">Save</button>
           <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full" v-if="job.isEditing" @click="toggleEdit(index)">Cancel</button>
         </td>
       </tr>
     </table>
-    <button class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" @click="createJob">Create New Job Application</button>
+    <button class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" @click="toggleSubmitRow">Create New Job Application</button>
   </div>
 </template>
 
@@ -80,17 +132,29 @@
     name: 'JobsTable',
     setup() {
       const jobs = ref([]);
-
+      const showSubmitRow = ref(false);
       const appStatus = ref([]);
       const appType = ref([]);
 
-      const currJob = ref({
+      const defaultJobForm = {
         "company": "",
         "title": "",
         "location": "",
-        "notes": "",
+        "posting_url": "",
+        "salary_low": "",
+        "salary_high": "",
+        "application_status": "",
+        "application_type": "",
+        "notes": ""
+      }
+      const jobToSubmit = ref({
+        ...defaultJobForm
       })
       // Fetch jobs from the API
+
+      const toggleSubmitRow = () => {
+        showSubmitRow.value = !showSubmitRow.value;
+      }
 
       const fetchDropDownOptions = async () => {
         try {
@@ -142,22 +206,25 @@
           console.error(err)
         })
       }
+
+      const clearJobForm = () => {
+        toggleSubmitRow();
+        jobToSubmit.value = {...defaultJobForm}
+
+      }
   
       const submitJob = async () => {
         try{
-          const result = await axios.post("/api/job", currJob.value);
+          console.log(jobToSubmit.value)
+          const result = await axios.post("/api/job", jobToSubmit.value);
           // Handle success by adding job to top of list
           const newjob = result.data;
           newjob.editData = {...newjob};
           newjob.isEditing = false;
           jobs.value.unshift(result.data);
           // set currjob back to defaults
-          Object.assign(currJob.value, {
-            "company": "",
-            "title": "",
-            "location": "",
-            "notes": "", 
-          })
+          // calls clearJobForm
+          clearJobForm();
           console.log("Submitted")
         } catch (error) {
           console.error('Failed to post job', error)
@@ -176,6 +243,7 @@
       }
 
       const formatUrl = (url) => {
+      if (typeof url !== "string") return "";
       if (!url.startsWith('http://') && !url.startsWith('https://')) {
         return `https://${url}`;
       }
@@ -183,9 +251,13 @@
     }
   
       return {
+        showSubmitRow,
         jobs,
         appStatus,
         appType,
+        jobToSubmit,
+        clearJobForm,
+        toggleSubmitRow,
         toggleEdit,
         formatUrl,
         updateJob,
