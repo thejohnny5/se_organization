@@ -3,6 +3,7 @@ FROM node
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
+COPY tailwind.config.js ./
 COPY vite.config.js ./
 COPY ui/ ui/
 COPY index.html .

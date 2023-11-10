@@ -51,14 +51,12 @@ func (db *JobsDBHandler) GetJobs(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error with claims", http.StatusInternalServerError)
 		return
 	}
-	log.Printf("claims: %+v", claims)
 	// Get jobs associated with user id i in
 	var jobs []models.JobApplication
 	if err := db.PreloadDocument(claims, &jobs).Error; err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	log.Printf("%+v", jobs)
 
 	jobs_json := make([]JobApplicationRequest, len(jobs))
 	for i, job := range jobs {
@@ -142,7 +140,7 @@ func (db *JobsDBHandler) UpdateJob(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	var job_json models.JobApplication
+	var job_json JobApplicationRequest
 	if err := json.Unmarshal(body, &job_json); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -150,6 +148,7 @@ func (db *JobsDBHandler) UpdateJob(w http.ResponseWriter, r *http.Request) {
 
 	job := models.JobApplication{
 		UserID:              claims.UserID,
+		ID:                  job_json.ID,
 		Company:             job_json.Company,
 		Title:               job_json.Title,
 		Location:            job_json.Location,
@@ -169,8 +168,7 @@ func (db *JobsDBHandler) UpdateJob(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(job)
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (db *JobsDBHandler) DeleteJob(w http.ResponseWriter, r *http.Request) {

@@ -10,9 +10,9 @@
         </button>
   
         <!-- GitHub OAuth Button -->
-        <button @click="loginWithGithub" class="login-button github">
+        <!-- <button @click="loginWithGithub" class="login-button github">
           Login with GitHub
-        </button>
+        </button> -->
       </div>
     </div>
   </template>
