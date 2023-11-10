@@ -10,9 +10,9 @@
         </button>
   
         <!-- GitHub OAuth Button -->
-        <button @click="loginWithGithub" class="login-button github">
+        <!-- <button @click="loginWithGithub" class="login-button github">
           Login with GitHub
-        </button>
+        </button> -->
       </div>
     </div>
   </template>
@@ -33,7 +33,7 @@
   
       const loginWithGoogle = () => {
         // Implement your login logic here
-        router.push('/oauth/google/login'); // Use router to navigate
+        window.location.href='/oauth/google/login'; // Use router to navigate
       };
   
       const loginWithGithub = () => {

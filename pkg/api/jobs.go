@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/thejohnny5/se_organization/pkg/models"
+	"github.com/thejohnny5/se_organization/pkg/services"
 	"gorm.io/gorm"
 )
 
@@ -29,7 +31,8 @@ type JobApplicationRequest struct {
 	CoverLetterName     string  `json:"cover_letter_name"`
 	CoverLetterDownload string  `json:"cover_letter_download"`
 	PostingUrl          *string `json:"posting_url"`
-	SalaryRange         *string `json:"salary_range"`
+	SalaryLow           *int    `json:"salary_low"`
+	SalaryHigh          *int    `json:"salary_high"`
 	Notes               *string `json:"notes"`
 }
 
@@ -49,14 +52,12 @@ func (db *JobsDBHandler) GetJobs(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error with claims", http.StatusInternalServerError)
 		return
 	}
-	log.Printf("claims: %+v", claims)
 	// Get jobs associated with user id i in
 	var jobs []models.JobApplication
 	if err := db.PreloadDocument(claims, &jobs).Error; err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	log.Printf("%+v", jobs)
 
 	jobs_json := make([]JobApplicationRequest, len(jobs))
 	for i, job := range jobs {
@@ -76,7 +77,8 @@ func (db *JobsDBHandler) GetJobs(w http.ResponseWriter, r *http.Request) {
 			CoverLetterName:     job.CoverLetter.DocumentName,
 			CoverLetterDownload: fmt.Sprintf("/api/document/%d/download", job.CoverLetterId),
 			PostingUrl:          job.PostingUrl,
-			SalaryRange:         job.SalaryRange,
+			SalaryLow:           job.SalaryLow,
+			SalaryHigh:          job.SalaryHigh,
 			Notes:               job.Notes,
 		}
 	}
@@ -97,11 +99,12 @@ func (db *JobsDBHandler) CreateJob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var job_json JobApplicationRequest
+
 	if err := json.Unmarshal(body, &job_json); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
+	log.Printf("job: %+v", job_json)
 	// set user_id to claims.UserID (or could check if they match before deciding)
 	job := models.JobApplication{
 		UserID:              claims.UserID,
@@ -113,7 +116,8 @@ func (db *JobsDBHandler) CreateJob(w http.ResponseWriter, r *http.Request) {
 		ResumeId:            job_json.ResumeId,
 		CoverLetterId:       job_json.CoverLetterId,
 		PostingUrl:          job_json.PostingUrl,
-		SalaryRange:         job_json.SalaryRange,
+		SalaryLow:           job_json.SalaryLow,
+		SalaryHigh:          job_json.SalaryHigh,
 		Notes:               job_json.Notes,
 	}
 
@@ -140,7 +144,7 @@ func (db *JobsDBHandler) UpdateJob(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	var job_json models.JobApplication
+	var job_json JobApplicationRequest
 	if err := json.Unmarshal(body, &job_json); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -148,6 +152,7 @@ func (db *JobsDBHandler) UpdateJob(w http.ResponseWriter, r *http.Request) {
 
 	job := models.JobApplication{
 		UserID:              claims.UserID,
+		ID:                  job_json.ID,
 		Company:             job_json.Company,
 		Title:               job_json.Title,
 		Location:            job_json.Location,
@@ -156,7 +161,8 @@ func (db *JobsDBHandler) UpdateJob(w http.ResponseWriter, r *http.Request) {
 		ResumeId:            job_json.ResumeId,
 		CoverLetterId:       job_json.CoverLetterId,
 		PostingUrl:          job_json.PostingUrl,
-		SalaryRange:         job_json.SalaryRange,
+		SalaryLow:           job_json.SalaryLow,
+		SalaryHigh:          job_json.SalaryHigh,
 		Notes:               job_json.Notes,
 	}
 
@@ -167,8 +173,7 @@ func (db *JobsDBHandler) UpdateJob(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(job)
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (db *JobsDBHandler) DeleteJob(w http.ResponseWriter, r *http.Request) {
@@ -207,4 +212,65 @@ func (db *JobsDBHandler) DeleteJob(w http.ResponseWriter, r *http.Request) {
 
 func (db *JobsDBHandler) PreloadDocument(claims Claims, jobs *[]models.JobApplication) *gorm.DB {
 	return db.DB.DB.Preload("ApplicationStatus").Preload("ApplicationType").Preload("Resume").Preload("CoverLetter").Where("user_id = ?", claims.UserID).Find(&jobs)
+}
+
+func (db *JobsDBHandler) DownloadCSV(w http.ResponseWriter, r *http.Request) {
+	claims, err := GetClaims(r)
+	if err != nil {
+		http.Error(w, "Error with claims", http.StatusInternalServerError)
+		return
+	}
+	// Get all Record for the current user
+	var jobs []models.JobApplication
+	if err := db.DB.DB.Where("user_id = ?", claims.UserID).Find(&jobs).Error; err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	log.Printf("jobs: +%v", jobs)
+	w.Header().Set("Content-Type", "text/csv")
+	w.Header().Set("Content-Disposition", "attachment;filename=job-apps.csv")
+
+	services.WriteJobsToClient(w, &jobs)
+}
+
+func (db *JobsDBHandler) UploadCSV(w http.ResponseWriter, r *http.Request) {
+	claims, err := GetClaims(r)
+	if err != nil {
+		http.Error(w, "Error with claims", http.StatusInternalServerError)
+		return
+	}
+
+	// Limit file size and parse form
+	r.Body = http.MaxBytesReader(w, r.Body, MAX_UPLOAD_SIZE)
+	if err := r.ParseMultipartForm(MAX_UPLOAD_SIZE); err != nil {
+		http.Error(w, "The uploaded file is too big.", http.StatusBadRequest)
+		return
+	}
+
+	mappings := []services.JobHeaderMap{}
+	mappingJSON := r.FormValue("headerMapping")
+
+	if err := json.Unmarshal([]byte(mappingJSON), &mappings); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	log.Printf("MappingJSON: %v", mappingJSON)
+	log.Printf("mappings: %+v", mappings)
+	file, _, err := r.FormFile("uploadFile")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	// Create a CSV reader and read the first row (headers)
+	csvReader := csv.NewReader(file)
+
+	if err := services.WriteJobsToDB(csvReader, mappings, &claims.UserID); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Write([]byte("CSV Uploaded"))
+
 }

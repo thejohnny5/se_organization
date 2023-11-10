@@ -39,7 +39,8 @@ func NewRouter(DB *models.DBClient) *mux.Router {
 	apiRouter.HandleFunc("/job", jobHandler.CreateJob).Methods("POST")
 	apiRouter.HandleFunc("/job", jobHandler.UpdateJob).Methods("PUT")
 	apiRouter.HandleFunc("/job/{id}", jobHandler.DeleteJob).Methods("DELETE")
-
+	apiRouter.HandleFunc("/job/csvdownload", jobHandler.DownloadCSV).Methods("GET")
+	apiRouter.HandleFunc("/job/csvupload", jobHandler.UploadCSV).Methods("POST")
 	apiRouter.HandleFunc("/document", documentHandler.UploadFile).Methods("POST")
 	apiRouter.HandleFunc("/document", documentHandler.GetDocuments).Methods("GET")
 	apiRouter.HandleFunc("/document/{id}/download", documentHandler.DownloadDoc).Methods("GET")
