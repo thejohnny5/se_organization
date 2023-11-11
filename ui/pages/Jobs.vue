@@ -1,59 +1,60 @@
 <template>
-  <div class="bg-gray-800 text-white p-6">
+  <div class="bg-gray-900 text-white p-6">
     <table class="min-w-full leading-normal">
-      <tr class="bg-gray-700">
+      <tr class="bg-gray-800">
         <th class="w-1/6 px-4 py-2">Company</th>
-        <th class="w-1/4 px-4 py-2">Title</th>
+        <th class="w-1/6 px-4 py-2">Title</th>
         <th class="w-1/6 px-4 py-2">Location</th>
-        <th class="w-1/7 px-4 py-2">Application Status</th>
-        <th class="w-1/7 px-4 py-2">Application Type</th>
-        <th class="w-1/6 px-4 py-2">Salary</th>
+        <th class="w-1/6 px-4 py-2">Salary Range</th>
         <th class="w-1/4 px-4 py-2">Notes</th>
+        <th class="w-1/8 px-4 py-2">Application Status</th>
+        <th class="w-1/8 px-4 py-2">Application Type</th>
         <th class="w-1/8 px-4 py-2">Actions</th>
       </tr>
       <!-- This is for the submission form -->
-      <tr v-if="showSubmitRow" class="bg-gray-400 border-b border-gray-700">
-      <td class="border px-2 py-2">
-        <input v-model="jobToSubmit.company" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" >
+      <tr v-if="showSubmitRow" class="bg-gray-800 border-none">
+      <td class="px-2 py-2">
+        <input v-model="jobToSubmit.company" class="bg-gray-600 text-white border-none rounded py-2 px-4 w-full" >
       </td>
 
-      <td class="border px-2 py-2">
-        <input v-model="jobToSubmit.title" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" >
-        <input v-model="jobToSubmit.posting_url" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full mt-2" >
+      <td class="px-2 py-2">
+        <input v-model="jobToSubmit.title" class="bg-gray-600 text-white border-none rounded py-2 px-4 w-full" >
+        <input v-model="jobToSubmit.posting_url" class="bg-gray-600 text-white border-none rounded py-2 px-4 w-full mt-2" >
       </td>
 
-      <td class="border px-2 py-2">
-        <input v-model="jobToSubmit.location" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" >
+      <td class="px-2 py-2">
+        <input v-model="jobToSubmit.location" class="bg-gray-600 text-white border-none rounded py-2 px-4 w-full" >
       </td>
 
-      <td class="border px-2 py-2">
-        <select v-model="jobToSubmit.application_status_id" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full">
+      <td class="px-2 py-2">
+        <input v-model="jobToSubmit.salary_low" type="number" class="bg-gray-600 text-white border-none rounded py-2 px-4 w-full" />
+        <input v-model="jobToSubmit.salary_high" type="number" class="bg-gray-600 text-white border-none rounded py-2 px-4 w-full mt-2" />
+      </td>
+
+      <td class="px-2 py-2">
+        <input v-model="jobToSubmit.notes" class="bg-gray-600 text-white border-none rounded py-2 px-4 w-full" >
+      </td>
+
+      <td class="px-2 py-2">
+        <select v-model="jobToSubmit.application_status_id" class="bg-gray-600 text-white border-none rounded py-2 px-4 w-full">
             <option v-for="status of appStatus" :key="status.id" :value="status.id">{{ status.text }}</option>
         </select> 
       </td>
-      <td class="border px-2 py-2">
-        <select v-model="jobToSubmit.application_type_id" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full">
+
+      <td class="px-2 py-2">
+        <select v-model="jobToSubmit.application_type_id" class="bg-gray-600 text-white border-none rounded py-2 px-4 w-full">
             <option v-for="status of appType" :key="status.id" :value="status.id">{{ status.text }}</option>
         </select> 
       </td>
 
-      <td class="border px-1 py-2">
-        <input v-model="jobToSubmit.salary_low" type="number" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" />
-        <input v-model="jobToSubmit.salary_high" type="number" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full mt-2" />
-      </td>
-
-      <td class="border px-2 py-2">
-        <input v-model="jobToSubmit.notes" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" >
-      </td>
-
-      <td class="border px-2 py-2">
-        <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full" @click="submitJob">Submit</button>
-        <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full" @click="clearJobForm">Cancel</button>
+      <td class="px-2 py-2">
+        <button class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded w-full" @click="submitJob">Submit</button>
+        <button class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded w-full mt-2" @click="clearJobForm">Cancel</button>
       </td>
     </tr>
 
       <tr v-for="(job, index) in jobs" :key="job.id" class="bg-gray-600 border-b border-gray-700">
-        <td class="border px-2 py-2">
+        <td class="px-2 py-2">
           <div v-if="!job.isEditing">
             {{ job.company }}
           </div>
@@ -63,7 +64,7 @@
         </td>
 
 
-        <td class="border px-2 py-2">
+        <td class="px-2 py-2">
           <div v-if="!job.isEditing">
             <a :href="formatUrl(job.posting_url)" target="_blank">{{ job.title }}</a>
           </div>
@@ -73,7 +74,7 @@
           </div>
         </td>
 
-        <td class="border px-2 py-2">
+        <td class="px-2 py-2">
           <div v-if="!job.isEditing">
             {{ job.location }}
           </div>
@@ -82,7 +83,7 @@
           </div>
         </td>
 
-        <td class="border px-4 py-2" v-if="!job.isEditing">{{ job.application_status }}</td>
+        <td class="px-4 py-2" v-if="!job.isEditing">{{ job.application_status }}</td>
         <td v-else>
           <select v-model="job.editData.application_status_id" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full">
             <option v-for="status of appStatus" :key="status.id" :value="status.id">{{ status.text }}</option>
@@ -119,7 +120,7 @@
         </td>
       </tr>
     </table>
-    <button class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" @click="toggleSubmitRow">Create New Job Application</button>
+    <button class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" @click="toggleSubmitRow">Create New Job Application</button>
   </div>
 </template>
 
@@ -267,4 +268,7 @@
     }
   });
   </script>
+
+  <style>
+  </style>
   

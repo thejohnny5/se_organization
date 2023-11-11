@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="bg-gray-800 text-white p-6">
+  <div id="app" class="bg-gray-900 text-white p-6">
     <!-- Your navbar, sidebar, or other components that should show on all pages can be placed here -->
 
     <!-- This is where the component for the matched route will be rendered -->
@@ -19,7 +19,7 @@ export default {
 
 <style>
 body {
-  background-color: #1F2937; /* bg-gray-800 */
+  background-color: #111827; /* bg-gray-900 */
   color: #FFFFFF; /* text-white */
 }
 </style>
