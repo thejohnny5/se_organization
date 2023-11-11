@@ -46,7 +46,7 @@ func (db *AuthDBHandler) AuthenticationMiddleware(next http.Handler) http.Handle
 		// // Token is valid so add to context
 		// ctx := context.WithValue(r.Context(), claimsContextKey, Claims{UserID: user_id})
 
-		// ONLY FOR TESTING
+		// // ONLY FOR TESTING
 		ctx := context.WithValue(r.Context(), claimsContextKey, Claims{UserID: 1})
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})

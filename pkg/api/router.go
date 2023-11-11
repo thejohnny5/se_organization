@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/thejohnny5/se_organization/pkg/models"
@@ -27,6 +28,7 @@ func NewRouter(DB *models.DBClient) *mux.Router {
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	apiRouter.Use(authHandler.AuthenticationMiddleware)
 	apiRouter.HandleFunc("/validate", validate).Methods("GET")
+	// apiRouter.HandleFunc("/logout", logout).Methods("POST")
 	// API Routes
 	// apiRouter.HandleFunc("/tasks", DB.GetTasks).Methods("GET")
 	// apiRouter.HandleFunc("/tasks", DB.CreateTask).Methods("POST")
@@ -49,4 +51,15 @@ func NewRouter(DB *models.DBClient) *mux.Router {
 
 func validate(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
+}
+
+func logout(w http.ResponseWriter, r *http.Request) {
+	c := &http.Cookie{
+		Name:     "session_token",
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Unix(0, 0),
+		HttpOnly: true,
+	}
+	http.SetCookie(w, c)
 }

@@ -1,5 +1,7 @@
 <template>
     <div class="bg-gray-800 text-white p-6">
+      <button class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" @click="toggleSubmitRow">Create New Job Application</button>
+      <span>Items: {{ jobs.length }}/{{ jobs.length }}</span>
       <table class="min-w-full leading-normal">
         <tr class="bg-gray-700">
           <th class="w-1/8 px-4 py-2">Date</th>
@@ -8,6 +10,7 @@
           <th class="w-1/6 px-4 py-2">Location</th>
           <th class="w-1/7 px-4 py-2">Application Status</th>
           <th class="w-1/7 px-4 py-2">Application Type</th>
+          <th class="w-1/5 px-4 py-2">Documents</th>
           <th class="w-1/6 px-4 py-2">Salary</th>
           <th class="w-1/4 px-4 py-2">Notes</th>
           <th class="w-1/8 px-4 py-2">Actions</th>
@@ -43,6 +46,12 @@
           </select> 
         </td>
   
+        <td class="border px-2 py-2">
+            <select v-model="jobToSubmit.resume_id" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full">
+                <option v-for="doc of resumes" :key="doc.id" :value="doc.id">{{ doc.original_file_name }}</option>
+            </select>
+        </td>
+
         <td class="border px-1 py-2">
           <input v-model="jobToSubmit.salary_low" type="number" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" />
           <input v-model="jobToSubmit.salary_high" type="number" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full mt-2" />
@@ -109,6 +118,13 @@
               <option v-for="status of appType" :key="status.id" :value="status.id">{{ status.text }}</option>
             </select>
           </td>
+
+          <td class="border px-4 py-2" v-if="!job.isEditing">{{ job.resume_name }}</td>
+          <td v-else>
+            <select v-model="jobToSubmit.resume_id" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full">
+                <option v-for="doc of resumes" :key="doc.id" :value="doc.id">{{ doc.original_file_name }}</option>
+            </select>
+          </td>
   
           <td class="border px-1 py-2">
             <div v-if="!job.isEditing">${{ job.salary_low }}-{{ job.salary_high }}</div>
@@ -126,14 +142,18 @@
           </td>
   
           <td class="border">
-            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full" v-if="!job.isEditing" @click="toggleEdit(index)">Edit</button>
-            <button class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded w-full" v-if="!job.isEditing" @click="deleteJob(index)">Delete</button>
+            <p v-if="job.confirmDelete">Confirm Delete</p>
+            <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full" v-if="job.confirmDelete" @click="deleteJob(index)">DELETE</button>
+            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full" v-else-if="!job.isEditing" @click="toggleEdit(index)">Edit</button>
             <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full" v-else @click="updateJob(index)">Save</button>
-            <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full" v-if="job.isEditing" @click="toggleEdit(index)">Cancel</button>
+
+            <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full" v-if="job.confirmDelete" @click="warn(index)">CANCEL</button> 
+            <button class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded w-full" v-else-if="!job.isEditing" @click="warn(index)">Delete</button>
+
+            <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full" v-else @click="toggleEdit(index)">Cancel</button>
           </td>
         </tr>
       </table>
-      <button class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" @click="toggleSubmitRow">Create New Job Application</button>
     </div>
   </template>
   
@@ -148,6 +168,7 @@
       name: 'JobsTable',
       components: { VueDatePicker },
       setup() {
+        const resumes = ref([])
         const jobs = ref([]);
         const showSubmitRow = ref(false);
         const appStatus = ref([]);
@@ -164,7 +185,9 @@
           "application_type_id": null,
           "application_type": "",
           "notes": "",
-          "date": null
+          "date": null,
+          "resume_id": null,
+          "resume_name": ""
         }
         const jobToSubmit = ref({
           ...defaultJobForm
@@ -185,6 +208,13 @@
             console.error(err);
           }
         }
+
+        const fetchDocumentOptions = async () => {
+            axios.get('/api/document')
+            .then(response=>{
+                resumes.value = response.data
+            }).catch(err=>console.error(err))
+        }
   
         const fetchJobs = async () => {
           try {
@@ -192,6 +222,7 @@
             jobs.value = response.data.map(job => ({
               ...job,
               isEditing: false,
+              confirmDelete: false,
               editData: {}
             }))
           } catch (error) {
@@ -202,7 +233,7 @@
         // Call the fetchJobs function on component mount
         onMounted(fetchJobs);
         onMounted(fetchDropDownOptions)
-    
+        onMounted(fetchDocumentOptions);
         // Update job on the server
         const toggleEdit = (index) => {
           if (!jobs.value[index].isEditing){
@@ -284,6 +315,10 @@
         }
         return url;
       }
+
+      const warn = (index) => {
+        jobs.value[index].confirmDelete = !jobs.value[index].confirmDelete;
+      }
     
         return {
           showSubmitRow,
@@ -291,6 +326,9 @@
           appStatus,
           appType,
           jobToSubmit,
+          resumes,
+          fetchDocumentOptions,
+          warn,
           clearJobForm,
           toggleSubmitRow,
           toggleEdit,

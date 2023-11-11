@@ -80,19 +80,29 @@ func HandleGoogleLogin(w http.ResponseWriter, r *http.Request) {
 
 func (db *OAuthDBHandler) HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	oauthState, err := r.Cookie("oauthstate")
+	w.Header().Set("Content-Type", "application/json")
+
 	if err != nil {
 		log.Println("no cookie present on user browser")
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		// http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		w.Write([]byte(`{"authenticated":false}"`))
+
+		return
 	}
 	if r.FormValue("state") != oauthState.Value {
 		log.Println("invalid oauth google state")
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		// http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		w.Write([]byte(`{"authenticated":false}"`))
+
+		return
 	}
 	data, err := getUserDataFromGoogle(r.FormValue("code"))
 
 	if err != nil {
 		log.Println(err.Error())
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		// http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		w.Write([]byte(`{"authenticated":false}"`))
+
 		return
 	}
 
@@ -110,7 +120,9 @@ func (db *OAuthDBHandler) HandleGoogleCallback(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	// http.Redirect(w, r, "/", http.StatusSeeOther)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte(`{"authenticated":true}"`))
 }
 
 // Check database and create user if needed

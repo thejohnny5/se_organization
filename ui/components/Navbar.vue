@@ -1,20 +1,41 @@
 <template>
-    <nav class="navbar">
+    <nav class="flex">
       <ul>
-        <li><router-link to="/">Home</router-link></li>
+        <li><router-link to="/home">Home</router-link></li>
         <li><router-link to="/about">About</router-link></li>
-        <!-- Add other navigation links here -->
+        <li @click="logout">Logout</li>
       </ul>
     </nav>
   </template>
   
   <script>
+  import { ref } from 'vue';
+  import { useRouter } from 'vue-router';
+  import axios from 'axios'
   export default {
     name: 'Navbar',
+    setup(){
+        const router = useRouter();
+        const logout = () => {
+            axios.post("/api/logout").
+            then(()=>{
+                console.log("logged out")
+                router.push("/")
+            }).catch(err=>console.error(err))
+            // send request to backend
+            // clear cookie
+            // navigate to /login page
+        }
+
+        return {
+            logout
+        }
+    
+    }
   };
   </script>
   
-  <style>
+  <!-- <style>
   .navbar {
     background-color: #333;
     color: white;
@@ -32,4 +53,4 @@
     text-decoration: none;
   }
   </style>
-  
+   -->
