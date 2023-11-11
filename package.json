@@ -20,6 +20,7 @@
   "author": "Jonathan Gray",
   "license": "ISC",
   "dependencies": {
+    "@vuepic/vue-datepicker": "^7.2.2",
     "autoprefixer": "^10.4.16",
     "axios": "^1.6.0",
     "dotenv": "^16.3.1",

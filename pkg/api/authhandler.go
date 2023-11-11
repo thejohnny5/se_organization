@@ -28,24 +28,26 @@ const claimsContextKey contextKey = "claims"
 
 func (db *AuthDBHandler) AuthenticationMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		tokenString, err := r.Cookie("session_token")
-		if err != nil {
-			//http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-		// if no string
-		// user not logged in error and redirect
-		// validate token
-		user_id, err := db.ValidateToken(tokenString.Value)
-		if err != nil {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
+		// tokenString, err := r.Cookie("session_token")
+		// if err != nil {
+		// 	//http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		// 	http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		// 	return
+		// }
+		// // if no string
+		// // user not logged in error and redirect
+		// // validate token
+		// user_id, err := db.ValidateToken(tokenString.Value)
+		// if err != nil {
+		// 	http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		// 	return
+		// }
 
-		// Token is valid so add to context
-		ctx := context.WithValue(r.Context(), claimsContextKey, Claims{UserID: user_id})
+		// // Token is valid so add to context
+		// ctx := context.WithValue(r.Context(), claimsContextKey, Claims{UserID: user_id})
 
+		// ONLY FOR TESTING
+		ctx := context.WithValue(r.Context(), claimsContextKey, Claims{UserID: 1})
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

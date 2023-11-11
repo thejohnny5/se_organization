@@ -104,7 +104,6 @@ func (db *JobsDBHandler) CreateJob(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	log.Printf("job: %+v", job_json)
 	// set user_id to claims.UserID (or could check if they match before deciding)
 	job := models.JobApplication{
 		UserID:              claims.UserID,
@@ -211,7 +210,10 @@ func (db *JobsDBHandler) DeleteJob(w http.ResponseWriter, r *http.Request) {
 }
 
 func (db *JobsDBHandler) PreloadDocument(claims Claims, jobs *[]models.JobApplication) *gorm.DB {
-	return db.DB.DB.Preload("ApplicationStatus").Preload("ApplicationType").Preload("Resume").Preload("CoverLetter").Where("user_id = ?", claims.UserID).Find(&jobs)
+	return db.DB.DB.Preload("ApplicationStatus").Preload("ApplicationType").
+		Preload("Resume").Preload("CoverLetter").
+		Where("user_id = ?", claims.UserID).
+		Order("created_at DESC").Find(jobs) // Notice 'jobs' instead of '&jobs'
 }
 
 func (db *JobsDBHandler) DownloadCSV(w http.ResponseWriter, r *http.Request) {

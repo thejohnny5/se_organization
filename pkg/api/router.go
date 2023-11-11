@@ -10,7 +10,7 @@ import (
 
 func NewRouter(DB *models.DBClient) *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
-	// User creation
+	// Will be for static assets eventually
 	router.Handle("/", http.FileServer(http.Dir("/app/frontend")))
 
 	userHandler := CreateUserDB(DB)

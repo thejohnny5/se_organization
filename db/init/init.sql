@@ -95,7 +95,7 @@ INSERT INTO dropdowns (text, table_type) VALUES ('Applied', 'application_status'
 INSERT INTO dropdowns (text, table_type) VALUES ('Followed-up', 'application_status');
 INSERT INTO dropdowns (text, table_type) VALUES ('Phone Screen', 'application_status');
 INSERT INTO dropdowns (text, table_type) VALUES ('Technical', 'application_status');
-INSERT INTO dropdowns (text, table_type) VALUES ('Findal Round/Onsite', 'application_status');
+INSERT INTO dropdowns (text, table_type) VALUES ('Final Round/Onsite', 'application_status');
 INSERT INTO dropdowns (text, table_type) VALUES ('Offered', 'application_status');
 INSERT INTO dropdowns (text, table_type) VALUES ('Signed', 'application_status');
 INSERT INTO dropdowns (text, table_type) VALUES ('Rejected', 'application_status');
