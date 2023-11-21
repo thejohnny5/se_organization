@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Home from './pages/Jobs.vue';
 import Login from './pages/Login.vue';
 import Files from './pages/Files.vue';
+import UploadCSV from './components/UploadFile.vue'
 
 const routes = [
   {
@@ -18,6 +19,11 @@ const routes = [
     path: '/files',
     name: 'Documents',
     component: Files
+  },
+  {
+    path: '/about',
+    name: 'About',
+    component: UploadCSV
   }
 ];
 

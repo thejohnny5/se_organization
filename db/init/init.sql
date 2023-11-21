@@ -65,6 +65,7 @@ CREATE TABLE documents (
 -- Job Applications Table
 CREATE TABLE job_applications (
     id SERIAL PRIMARY KEY,
+    date_applied TIMESTAMP WITH TIME ZONE,
     user_id INT NOT NULL,
     company VARCHAR(255) NOT NULL,
     title VARCHAR(255) NOT NULL,

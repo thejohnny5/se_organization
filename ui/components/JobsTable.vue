@@ -19,7 +19,7 @@
         <tr v-if="showSubmitRow" class="bg-gray-400 border-b border-gray-700">
   
         <td class="border px-2 py-2">
-          <VueDatePicker v-model="jobToSubmit.date">{{jobToSubmit.date}}</VueDatePicker>
+          <VueDatePicker class="my-datepicker" v-model="jobToSubmit.date_applied">{{jobToSubmit.date_applied}}</VueDatePicker>
         </td>
   
         <td class="border px-2 py-2">
@@ -70,10 +70,10 @@
         <tr v-for="(job, index) in jobs" :key="job.id" class="bg-gray-600 border-b border-gray-700">
           <td class="border px-2 py-2">
             <div v-if="!job.isEditing">
-              {{ job.date }}
+              {{ job.date_applied }}
             </div>
             <div v-else>
-              <VueDatePicker v-model="job.editData.date">{{ job.editData.date }}</VueDatePicker>
+              <VueDatePicker v-model="job.editData.date_applied">{{ job.editData.date_applied }}</VueDatePicker>
             </div>
           </td>
           <td class="border px-2 py-2">
@@ -185,7 +185,7 @@
           "application_type_id": null,
           "application_type": "",
           "notes": "",
-          "date": null,
+          "date_applied": null,
           "resume_id": null,
           "resume_name": ""
         }
@@ -219,6 +219,7 @@
         const fetchJobs = async () => {
           try {
             const response = await axios.get('/api/job');
+            console.log(response.data)
             jobs.value = response.data.map(job => ({
               ...job,
               isEditing: false,
@@ -341,3 +342,18 @@
     });
     </script>
     
+    <style scoped>
+    .my-datepicker::deep .vdpComponent { /* Replace '.vdpComponent' with the actual class used by VueDatePicker */
+      background-color: #2d3748; /* bg-gray-700 */
+      color: #ffffff; /* text-white */
+      border: none;
+      border-radius: 0.25rem; /* rounded */
+    }
+    
+    .my-datepicker::deep .vdpComponent input {
+      background-color: #2d3748; /* bg-gray-700 */
+      color: #ffffff; /* text-white */
+    }
+    
+    /* Add more custom styles as needed, targeting specific inner elements */
+    </style>
