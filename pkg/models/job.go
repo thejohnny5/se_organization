@@ -21,9 +21,9 @@ type JobApplication struct {
 	Resume              Document `gorm:"foreignKey:ResumeId;references:ID"`
 	CoverLetterId       *uint    // Pointer to support omission if empty
 	CoverLetter         Document `gorm:"foreignKey:CoverLetterId;references:ID"`
-	PostingUrl          *string
-	SalaryLow           *int
-	SalaryHigh          *int
+	PostingUrl          string
+	SalaryLow           int
+	SalaryHigh          int
 	ContactID           *uint // Pointer to support omission if empty
 	Notes               string
 	CreatedAt           time.Time

@@ -9,11 +9,12 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/thejohnny5/se_organization/pkg/models"
 )
 
-var headers []string = []string{"id", "company", "title", "location", "application_status",
+var headers []string = []string{"id", "date_applied", "company", "title", "location", "application_status",
 	"application_type", "resume", "cover_letter", "posting_url", "salary_low", "salary_high", "notes"}
 var set = genSet(headers)
 
@@ -46,6 +47,14 @@ func convertToJobStruct(dbRecord map[string]string, app_status_dd []models.Dropd
 	jobApp := &models.JobApplication{}
 	for key, value := range dbRecord {
 		switch key {
+		case "date_applied":
+			// convert to timestamp
+			t, err := time.Parse("10/20/2001", value)
+			if err != nil {
+				log.Printf("Error parsing date for val: %s", value)
+				continue
+			}
+			jobApp.DateApplied = &t
 		case "company":
 			jobApp.Company = value
 		case "title":
@@ -68,7 +77,7 @@ func convertToJobStruct(dbRecord map[string]string, app_status_dd []models.Dropd
 			}
 			jobApp.ApplicationTypeId = &id
 		case "posting_url":
-			jobApp.PostingUrl = &value
+			jobApp.PostingUrl = value
 		case "notes":
 			jobApp.Notes = value
 		default:
@@ -91,9 +100,9 @@ func WriteJobsToClient(w http.ResponseWriter, jobs *[]models.JobApplication) {
 			job.ApplicationType.Text,
 			job.Resume.DocumentName,
 			job.CoverLetter.DocumentName,
-			safeDeref(job.PostingUrl),
-			safeDerefInt(job.SalaryLow),
-			safeDerefInt(job.SalaryHigh),
+			job.PostingUrl,
+			strconv.Itoa(job.SalaryLow),
+			strconv.Itoa(job.SalaryHigh),
 			job.Notes,
 		}
 		if err := csvWriter.Write(line); err != nil {

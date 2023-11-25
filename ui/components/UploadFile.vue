@@ -27,7 +27,7 @@ import axios from 'axios';
     setup(){
         const JobHeaders = ref([]);
         const constructJobHeaders = () => {
-            const options = ["company", "title", "location", "application_status",
+            const options = ["date_applied", "company", "title", "location", "application_status",
         "application_type", "resume", "cover_letter", "posting_url", "salary_low", "salary_high", "notes"]
         for (let opt of options){
             JobHeaders.value.push({dbField: opt, csvHeader: null})

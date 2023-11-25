@@ -18,25 +18,25 @@ import (
 
 // JobApplicationRequest represents the data structure for a job application request.
 type JobApplicationRequest struct {
-	ID                  uint    `json:"id"`
-	DateApplied         string  `json:"date_applied"`
-	Company             string  `json:"company"`
-	Title               string  `json:"title"`
-	Location            string  `json:"location"` // Pointer to support omission if empty
-	ApplicationStatusId *uint   `json:"application_status_id"`
-	ApplicationStatus   string  `json:"application_status"` // FK to dropdowns
-	ApplicationTypeId   *uint   `json:"application_type_id"`
-	ApplicationType     string  `json:"application_type"` // FK to dropdown
-	ResumeId            *uint   `json:"resume_id"`        // Pointer to support omission if empty
-	ResumeName          string  `json:"resume_name"`
-	ResumeDownload      string  `json:"resume_download"`
-	CoverLetterId       *uint   `json:"cover_letter_id"` // Pointer to support omission if empty
-	CoverLetterName     string  `json:"cover_letter_name"`
-	CoverLetterDownload string  `json:"cover_letter_download"`
-	PostingUrl          *string `json:"posting_url"`
-	SalaryLow           *int    `json:"salary_low"`
-	SalaryHigh          *int    `json:"salary_high"`
-	Notes               string  `json:"notes"`
+	ID                  uint   `json:"id"`
+	DateApplied         string `json:"date_applied"`
+	Company             string `json:"company"`
+	Title               string `json:"title"`
+	Location            string `json:"location"` // Pointer to support omission if empty
+	ApplicationStatusId *uint  `json:"application_status_id"`
+	ApplicationStatus   string `json:"application_status"` // FK to dropdowns
+	ApplicationTypeId   *uint  `json:"application_type_id"`
+	ApplicationType     string `json:"application_type"` // FK to dropdown
+	ResumeId            *uint  `json:"resume_id"`        // Pointer to support omission if empty
+	ResumeName          string `json:"resume_name"`
+	ResumeDownload      string `json:"resume_download"`
+	CoverLetterId       *uint  `json:"cover_letter_id"` // Pointer to support omission if empty
+	CoverLetterName     string `json:"cover_letter_name"`
+	CoverLetterDownload string `json:"cover_letter_download"`
+	PostingUrl          string `json:"posting_url"`
+	SalaryLow           int    `json:"salary_low"`
+	SalaryHigh          int    `json:"salary_high"`
+	Notes               string `json:"notes"`
 }
 
 // JobsDBHandler handles database operations related to job applications.
