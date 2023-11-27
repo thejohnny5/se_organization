@@ -1,9 +1,9 @@
 <template>
     <div v-if="isPopupVisible" >
-      <form @submit.prevent="submitForm">
-        <input type="file" @change="handleFileUpload" />
-        <button class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit">Submit</button>
-      </form>
+    <div>
+      <input type="file" @change="handleFileUpload" />
+    </div>
+        
     <div v-if="formDataRef.file">
         <div v-for="(jh, index) in JobHeaders">
             <label>{{ jh.dbField }}<span v-if="jh.dbField=='company' || jh.dbField=='title'">*</span></label>
@@ -12,7 +12,9 @@
                 <option v-for="(header, index) in headers" :key="index">{{ header }}</option>
             </select>
         </div>
-        
+      
+    <button class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full" type="submit">Submit</button>
+ 
     </div>
     <button class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded w-full" @click="closePopup">Close</button>
     </div>

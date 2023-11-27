@@ -1,11 +1,14 @@
 <template>
-    <nav class="flex">
-      <ul>
+  <div class="flex flex-row justify-end">
+    <nav class="flex flex-row bg-gray-700 h-10 w-1/5 ">
+      <ul class="w-full flex flex-row space-x-12 items-center justify-center">
         <li><router-link to="/home">Home</router-link></li>
-        <li><router-link to="/about">About</router-link></li>
-        <li @click="logout">Logout</li>
+        <!-- <li><router-link to="/about">About</router-link></li> -->
+        <li @click="logout" v-bind:style="{cursor: 'pointer'}">Logout</li>
       </ul>
     </nav>
+  </div>
+  
   </template>
   
   <script>

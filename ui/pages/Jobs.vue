@@ -1,9 +1,13 @@
 <template>
-<Navbar />
-<button class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" @click="showUploadFile">Upload From CSV</button>
-<UploadFile ref="uploadFileRef" />
-<button class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" @click="downloadCSV">Download as CSV</button>
-<JobsTable />
+  <div class="flex flex-col">
+    <Navbar />
+    <button class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-1/5" @click="downloadCSV">Download as CSV</button>
+    <div>
+      <button class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-1/5" @click="showUploadFile">Upload From CSV</button>
+      <UploadFile ref="uploadFileRef" />
+    </div>
+    <JobsTable />
+  </div>
 </template>
 
 <script>

@@ -1,7 +1,11 @@
 <template>
     <div class="bg-gray-800 text-white p-6">
       <button class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" @click="toggleSubmitRow">Create New Job Application</button>
-      <span>Items: {{ jobs.length }}/{{ jobs.length }}</span>
+
+      <div>
+        <span>Items: {{ jobs.length }}/{{ jobs.length }}</span>
+      </div>
+      
       <table class="min-w-full leading-normal">
         <tr class="bg-gray-700">
           <th class="w-1/8 px-4 py-2">Date</th>
@@ -23,7 +27,7 @@
         </td>
   
         <td class="border px-2 py-2">
-          <input v-model="jobToSubmit.company" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" >
+          <textarea v-model="jobToSubmit.company" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" rows="3" cols="50"></textarea>
         </td>
   
         <td class="border px-2 py-2">
@@ -32,7 +36,7 @@
         </td>
   
         <td class="border px-2 py-2">
-          <input v-model="jobToSubmit.location" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" >
+          <textarea v-model="jobToSubmit.location" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" rows="3" cols="50"></textarea>
         </td>
   
         <td class="border px-2 py-2">
@@ -58,7 +62,7 @@
         </td>
   
         <td class="border px-2 py-2">
-          <input v-model="jobToSubmit.notes" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" >
+          <textarea v-model="jobToSubmit.notes" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" rows="4" cols="50"></textarea>
         </td>
   
         <td class="border px-2 py-2">
@@ -81,7 +85,7 @@
               {{ job.company }}
             </div>
             <div v-else>
-              <input v-model="job.editData.company" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" />
+              <textarea v-model="job.editData.company" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" rows="3" cols="50"></textarea>
             </div>
           </td>
   
@@ -101,7 +105,7 @@
               {{ job.location }}
             </div>
             <div v-else>
-              <input v-model="job.editData.location" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" />
+              <textarea v-model="job.editData.location" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" rows="3" cols="50"></textarea>
             </div>
           </td>
   
@@ -137,7 +141,7 @@
           <td class="border px-1 py-1">
             <div v-if="!job.isEditing">{{ job.notes }}</div>
             <div v-else>
-              <input v-model="job.editData.notes" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" />
+              <textarea v-model="job.editData.notes" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" rows="4" cols="50"></textarea>
             </div>
           </td>
   
