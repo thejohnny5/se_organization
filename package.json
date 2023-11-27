@@ -27,6 +27,7 @@
     "postcss": "^8.4.31",
     "tailwindcss": "^3.3.5",
     "vue": "^3.3.7",
+    "vue-google-oauth2": "^1.5.10",
     "vue-router": "^4.2.5"
   },
   "devDependencies": {

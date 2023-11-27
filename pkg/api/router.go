@@ -1,7 +1,9 @@
 package api
 
 import (
+	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -13,6 +15,13 @@ func NewRouter(DB *models.DBClient) *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
 	// Will be for static assets eventually
 	router.Handle("/", http.FileServer(http.Dir("/app/frontend")))
+	router.HandleFunc("/assets/", func(w http.ResponseWriter, r *http.Request) {
+		log.Println("hit assets")
+		if strings.HasSuffix(r.URL.Path, ".css") {
+			w.Header().Set("Content-Type", "text/css")
+		}
+		http.FileServer(http.Dir("/app/frontend")).ServeHTTP(w, r)
+	})
 
 	userHandler := CreateUserDB(DB)
 	authHandler := CreateAuthDB(DB)

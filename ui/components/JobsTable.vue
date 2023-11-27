@@ -5,17 +5,17 @@
       <div>
         <span>Items: {{ jobs.length }}/{{ jobs.length }}</span>
       </div>
-      
+
       <table class="min-w-full leading-normal">
         <tr class="bg-gray-700">
-          <th class="w-1/8 px-4 py-2">Date</th>
+          <th class="w-1/5 px-4 py-2">Date</th>
           <th class="w-1/6 px-4 py-2">Company</th>
           <th class="w-1/4 px-4 py-2">Title</th>
           <th class="w-1/6 px-4 py-2">Location</th>
           <th class="w-1/7 px-4 py-2">Application Status</th>
           <th class="w-1/7 px-4 py-2">Application Type</th>
-          <th class="w-1/5 px-4 py-2">Documents</th>
-          <th class="w-1/6 px-4 py-2">Salary</th>
+          <!-- <th class="w-1/5 px-4 py-2">Documents</th> -->
+          <th class="w-1/8 px-4 py-2">Salary</th>
           <th class="w-1/4 px-4 py-2">Notes</th>
           <th class="w-1/8 px-4 py-2">Actions</th>
         </tr>
@@ -23,7 +23,7 @@
         <tr v-if="showSubmitRow" class="bg-gray-400 border-b border-gray-700">
   
         <td class="border px-2 py-2">
-          <VueDatePicker class="my-datepicker" v-model="jobToSubmit.date_applied">{{jobToSubmit.date_applied}}</VueDatePicker>
+          <VueDatePicker class="bg-gray-800 text-black border-gray-700" v-model="jobToSubmit.date_applied">{{jobToSubmit.date_applied}}</VueDatePicker>
         </td>
   
         <td class="border px-2 py-2">
@@ -50,11 +50,11 @@
           </select> 
         </td>
   
-        <td class="border px-2 py-2">
+        <!-- <td class="border px-2 py-2">
             <select v-model="jobToSubmit.resume_id" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full">
                 <option v-for="doc of resumes" :key="doc.id" :value="doc.id">{{ doc.original_file_name }}</option>
             </select>
-        </td>
+        </td> -->
 
         <td class="border px-1 py-2">
           <input v-model="jobToSubmit.salary_low" type="number" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" />
@@ -77,7 +77,7 @@
               {{ job.date_applied }}
             </div>
             <div v-else>
-              <VueDatePicker v-model="job.editData.date_applied">{{ job.editData.date_applied }}</VueDatePicker>
+              <VueDatePicker class="bg-gray-800 text-white border-gray-700" v-model="job.editData.date_applied">{{ job.editData.date_applied }}</VueDatePicker>
             </div>
           </td>
           <td class="border px-2 py-2">
@@ -123,12 +123,12 @@
             </select>
           </td>
 
-          <td class="border px-4 py-2" v-if="!job.isEditing">{{ job.resume_name }}</td>
+          <!-- <td class="border px-4 py-2" v-if="!job.isEditing">{{ job.resume_name }}</td>
           <td v-else>
             <select v-model="jobToSubmit.resume_id" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full">
                 <option v-for="doc of resumes" :key="doc.id" :value="doc.id">{{ doc.original_file_name }}</option>
             </select>
-          </td>
+          </td> -->
   
           <td class="border px-1 py-2">
             <div v-if="!job.isEditing">${{ job.salary_low }}-{{ job.salary_high }}</div>
@@ -167,7 +167,7 @@
     import axios from 'axios';
     import VueDatePicker from '@vuepic/vue-datepicker'
     import '@vuepic/vue-datepicker/dist/main.css'
-    
+
     export default defineComponent({
       name: 'JobsTable',
       components: { VueDatePicker },
@@ -347,17 +347,4 @@
     </script>
     
     <style scoped>
-    .my-datepicker::deep .vdpComponent { /* Replace '.vdpComponent' with the actual class used by VueDatePicker */
-      background-color: #2d3748; /* bg-gray-700 */
-      color: #ffffff; /* text-white */
-      border: none;
-      border-radius: 0.25rem; /* rounded */
-    }
-    
-    .my-datepicker::deep .vdpComponent input {
-      background-color: #2d3748; /* bg-gray-700 */
-      color: #ffffff; /* text-white */
-    }
-    
-    /* Add more custom styles as needed, targeting specific inner elements */
     </style>

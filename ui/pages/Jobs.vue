@@ -15,13 +15,24 @@ import axios from 'axios';
 import JobsTable from './../components/JobsTable.vue'
 import Navbar from './../components/Navbar.vue'
 import UploadFile from './../components/UploadFile.vue';
-import { defineComponent, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { defineComponent, ref, onMounted } from 'vue';
 export default defineComponent({
   name: "Jobs",
   components: {JobsTable, Navbar, UploadFile},
   setup(){
+    const router = useRouter();
     const uploadFileRef = ref(null);
-          
+        
+    const validateCred = () => {
+      axios.get('/api/validate')
+      .then(res=>console.log(res))
+      .catch(err=>{
+        console.error('Not logged in');
+        router.push("/");
+      })
+    }
+    onMounted(validateCred)
     const showUploadFile = () => {
           if (uploadFileRef.value){
             uploadFileRef.value.openPopup();
