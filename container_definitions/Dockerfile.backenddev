@@ -1,4 +1,7 @@
 FROM golang:latest
+WORKDIR /app/frontend
+COPY ui/assets/ assets/
+
 WORKDIR /app
 
 COPY go.mod .

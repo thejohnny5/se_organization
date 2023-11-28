@@ -233,6 +233,10 @@ func (db *JobsDBHandler) DeleteJob(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+// DownloadCSV downloads all Jobs for a user
+// It will first join the jobs table in the database with the application type/status
+// and cover letter/resume documents
+// It then sets the content type to csv and send the file
 func (db *JobsDBHandler) DownloadCSV(w http.ResponseWriter, r *http.Request) {
 	claims, err := GetClaims(r)
 	if err != nil {
@@ -246,7 +250,6 @@ func (db *JobsDBHandler) DownloadCSV(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("jobs: +%v", jobs)
 	w.Header().Set("Content-Type", "text/csv")
 	w.Header().Set("Content-Disposition", "attachment;filename=job-apps.csv")
 
@@ -293,6 +296,8 @@ func (db *JobsDBHandler) UploadCSV(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// dateDeref takes a pointer to a time.Time value and will either
+// dereference the pointer if it is not nil or will return an empty string
 func dateDeref(d *time.Time) string {
 	// If nil pointer return empty string
 	if d == nil {
@@ -301,6 +306,8 @@ func dateDeref(d *time.Time) string {
 	return d.Format("Mon Jan 02 2006")
 }
 
+// convertDate simply will parse a date string
+// and convert it into a time.Time pointer
 func convertDate(isoDateString string) *time.Time {
 	t, err := time.Parse(time.RFC3339, isoDateString)
 	if err != nil {
