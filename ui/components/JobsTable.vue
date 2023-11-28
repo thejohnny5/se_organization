@@ -223,7 +223,6 @@
         const fetchJobs = async () => {
           try {
             const response = await axios.get('/api/job');
-            console.log(response.data)
             jobs.value = response.data.map(job => ({
               ...job,
               isEditing: false,
@@ -254,7 +253,6 @@
           axios.put("/api/job", jobs.value[index].editData)
           .then(()=>{
             // update data
-            console.log(job)
             jobs.value[index] = jobs.value[index].editData
             const newJobStatus = appStatus.value.filter(element=>job.application_status_id===element.id)[0];
             jobs.value[index].application_status = newJobStatus? newJobStatus.text : undefined
@@ -267,7 +265,6 @@
             // jobs.value[index].application_type = appType.value.filter(element=>job.application_type_id===element.id)[0].text;
             jobs.value[index].editData = {};
             jobs.value[index].isEditing = false;
-            console.log(jobs.value[index])
           }).catch(err=>{
             console.error(err)
           })
@@ -281,7 +278,6 @@
     
         const submitJob = async () => {
           try{
-            console.log(jobToSubmit.value)
             const result = await axios.post("/api/job", jobToSubmit.value);
             // Handle success by adding job to top of list
             const newjob = result.data;

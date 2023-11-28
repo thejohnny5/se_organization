@@ -57,7 +57,6 @@ import axios from 'axios';
                 const content = e.target.result;
                 const firstLine = content.split(/\r\n|\n/)[0]; // Split by new line and take the first line
                 headers.value = firstLine.split(',');
-                console.log(headers.value)
             }
             reader.readAsText(file);
         }
@@ -72,13 +71,11 @@ import axios from 'axios';
             
             formData.append('headerMapping', JSON.stringify(JobHeaders.value));
             formData.append('uploadFile', formDataRef.value.file);
-            console.log(JobHeaders.value)
             axios.post('/api/job/csvupload', formData)
             .then(res=>{
               // close popup
               closePopup();
               // refresh page
-              console.log(res);
               window.location.reload();
             })
             .catch(err=>console.error(err)); // Popup with error

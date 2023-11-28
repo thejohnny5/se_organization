@@ -49,7 +49,6 @@
         .then((res)=>{
           if (res.status == 200) router.push("/home")
         }).catch((err)=>{
-          console.log("Not logged in")
         }).finally(()=>isLoading.value=false)
      
         }

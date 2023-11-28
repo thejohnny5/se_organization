@@ -39,7 +39,6 @@
         try {
           const response = await axios.get('/api/document');
           files.value = response.data;
-          console.log(response.data)
         } catch (error) {
           console.error('Failed to fetch jobs', error);
         }
