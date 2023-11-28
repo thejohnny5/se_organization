@@ -49,7 +49,7 @@ func convertToJobStruct(dbRecord map[string]string, app_status_dd []models.Dropd
 		switch key {
 		case "date_applied":
 			// convert to timestamp
-			t, err := time.Parse("10/20/2001", value)
+			t, err := time.Parse("01-02-2006", value)
 			if err != nil {
 				log.Printf("Error parsing date for val: %s", value)
 				continue
@@ -80,6 +80,20 @@ func convertToJobStruct(dbRecord map[string]string, app_status_dd []models.Dropd
 			jobApp.PostingUrl = value
 		case "notes":
 			jobApp.Notes = value
+		case "salary_low":
+			salary, err := strconv.Atoi(value)
+			if err != nil {
+				log.Printf("Could not string: '%s' to salary", value)
+				continue
+			}
+			jobApp.SalaryLow = salary
+		case "salary_high":
+			salary, err := strconv.Atoi(value)
+			if err != nil {
+				log.Printf("Could not string: '%s' to salary", value)
+				continue
+			}
+			jobApp.SalaryHigh = salary
 		default:
 			log.Printf("None for key: %s", key)
 		}
@@ -93,6 +107,7 @@ func WriteJobsToClient(w http.ResponseWriter, jobs *[]models.JobApplication) {
 	for _, job := range *jobs {
 		line := []string{
 			strconv.Itoa(int(job.ID)),
+			job.DateApplied.Format("01-02-2006"),
 			job.Company,
 			job.Title,
 			job.Location,

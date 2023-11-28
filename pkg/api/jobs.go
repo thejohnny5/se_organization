@@ -52,6 +52,13 @@ func CreateJobsDB(db *models.DBClient) *JobsDBHandler {
 	return &JobsDBHandler{DB: db}
 }
 
+func (db *JobsDBHandler) PreloadDocument(claims Claims, jobs *[]models.JobApplication) *gorm.DB {
+	return db.DB.DB.Preload("ApplicationStatus").Preload("ApplicationType").
+		Preload("Resume").Preload("CoverLetter").
+		Where("user_id = ?", claims.UserID).
+		Order("created_at DESC").Find(jobs) // Notice 'jobs' instead of '&jobs'
+}
+
 // GetJobs retrieves a list of job applications associated with the user from the database.
 // It extracts the user's claims from the request, queries the database for jobs tied to the user,
 // and returns them in a JSON-encoded format. In case of an error, it logs the error and sends
@@ -226,13 +233,6 @@ func (db *JobsDBHandler) DeleteJob(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (db *JobsDBHandler) PreloadDocument(claims Claims, jobs *[]models.JobApplication) *gorm.DB {
-	return db.DB.DB.Preload("ApplicationStatus").Preload("ApplicationType").
-		Preload("Resume").Preload("CoverLetter").
-		Where("user_id = ?", claims.UserID).
-		Order("created_at DESC").Find(jobs) // Notice 'jobs' instead of '&jobs'
-}
-
 func (db *JobsDBHandler) DownloadCSV(w http.ResponseWriter, r *http.Request) {
 	claims, err := GetClaims(r)
 	if err != nil {
@@ -241,7 +241,7 @@ func (db *JobsDBHandler) DownloadCSV(w http.ResponseWriter, r *http.Request) {
 	}
 	// Get all Record for the current user
 	var jobs []models.JobApplication
-	if err := db.DB.DB.Where("user_id = ?", claims.UserID).Find(&jobs).Error; err != nil {
+	if err := db.PreloadDocument(claims, &jobs).Error; err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -270,13 +270,10 @@ func (db *JobsDBHandler) UploadCSV(w http.ResponseWriter, r *http.Request) {
 	mappings := []services.JobHeaderMap{}
 	mappingJSON := r.FormValue("headerMapping")
 
-	log.Printf("MappingJSON: %v", mappingJSON)
-
 	if err := json.Unmarshal([]byte(mappingJSON), &mappings); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	log.Printf("mappings: %+v", mappings)
 	file, _, err := r.FormFile("uploadFile")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

@@ -13,7 +13,7 @@
             </select>
         </div>
       
-    <button class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full" type="submit">Submit</button>
+    <button class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full" @click="submitForm">Submit</button>
  
     </div>
     <button class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded w-full" @click="closePopup">Close</button>
