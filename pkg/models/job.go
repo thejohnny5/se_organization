@@ -7,12 +7,12 @@ import (
 )
 
 type JobApplication struct {
-	ID     uint `gorm:"primaryKey"`
-	UserID uint //Foreign key to User
-	// User                User `gorm:"foreignKey:UserID;references:ID"`
+	ID                  uint `gorm:"primaryKey"`
+	UserID              uint //Foreign key to User
+	DateApplied         *time.Time
 	Company             string
 	Title               string
-	Location            *string // Pointer to support omission if empty
+	Location            string // Pointer to support omission if empty
 	ApplicationStatusId *uint
 	ApplicationStatus   Dropdown `gorm:"foreignKey:ApplicationStatusId;references:ID"` // FK to dropdowns
 	ApplicationTypeId   *uint
@@ -21,11 +21,11 @@ type JobApplication struct {
 	Resume              Document `gorm:"foreignKey:ResumeId;references:ID"`
 	CoverLetterId       *uint    // Pointer to support omission if empty
 	CoverLetter         Document `gorm:"foreignKey:CoverLetterId;references:ID"`
-	PostingUrl          *string
-	SalaryLow           *int
-	SalaryHigh          *int
+	PostingUrl          string
+	SalaryLow           int
+	SalaryHigh          int
 	ContactID           *uint // Pointer to support omission if empty
-	Notes               *string
+	Notes               string
 	CreatedAt           time.Time
 	UpdatedAt           time.Time
 	DeletedAt           gorm.DeletedAt `gorm:"index"`

@@ -21,11 +21,13 @@
   import { onMounted, ref } from 'vue';
   import axios from 'axios';
   import { useRouter } from 'vue-router'; // Import useRouter to get access to the router instance
-  
+
+
   export default {
     name: 'LoginPage',
   
     setup() {
+  
       const router = useRouter(); // Get the router instance
   
       // Reactive reference for loading state, for example
@@ -41,21 +43,18 @@
         console.log('Logging in with GitHub...');
       };
   
-      const isLoggedIn = async () => {
-        isLoading.value = true; // Set loading state to true
-        try {
-          await axios.get("/api/validate");
-          router.push('/home');
-        } catch (err) {
-          console.log("not logged in", err);
-        } finally {
-          isLoading.value = false; // Set loading state to false
+      const isLoggedIn = () => {
+        isLoading.value = true;
+        axios.get("/api/validate")
+        .then((res)=>{
+          if (res.status == 200) router.push("/home")
+        }).catch((err)=>{
+        }).finally(()=>isLoading.value=false)
+     
         }
-      };
+      
   
-      onMounted(() => {
-        isLoggedIn();
-      });
+      onMounted(isLoggedIn);
   
       // Return the functions and state you want to use in your template
       return {

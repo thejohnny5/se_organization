@@ -59,6 +59,7 @@ func randomizeString(w http.ResponseWriter, numBytes uint) (string, error) {
 
 	state := base64.URLEncoding.EncodeToString(b)
 	var expiration = time.Now().Add(365 * 24 * time.Hour)
+	log.Printf("State randomized: %s\n", state)
 	cookie := http.Cookie{Name: "oauthstate", Value: state, Expires: expiration}
 	http.SetCookie(w, &cookie)
 	return state, nil
@@ -80,19 +81,31 @@ func HandleGoogleLogin(w http.ResponseWriter, r *http.Request) {
 
 func (db *OAuthDBHandler) HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	oauthState, err := r.Cookie("oauthstate")
+	w.Header().Set("Content-Type", "application/json")
+
 	if err != nil {
 		log.Println("no cookie present on user browser")
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		// w.Write([]byte(`{"authenticated":false}"`))
+
+		return
 	}
 	if r.FormValue("state") != oauthState.Value {
 		log.Println("invalid oauth google state")
+		log.Printf("state: %s\n", r.FormValue("state"))
+		log.Printf("should be: %s\n", oauthState.Value)
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		// w.Write([]byte(`{"authenticated":false}"`))
+
+		return
 	}
 	data, err := getUserDataFromGoogle(r.FormValue("code"))
 
 	if err != nil {
 		log.Println(err.Error())
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		// w.Write([]byte(`{"authenticated":false}"`))
+
 		return
 	}
 
@@ -111,6 +124,8 @@ func (db *OAuthDBHandler) HandleGoogleCallback(w http.ResponseWriter, r *http.Re
 	}
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+	// w.Header().Set("Content-Type", "application/json")
+	// w.Write([]byte(`{"authenticated":true}"`))
 }
 
 // Check database and create user if needed
@@ -157,7 +172,7 @@ func getUserDataFromGoogle(code string) ([]byte, error) {
 
 func (db *OAuthDBHandler) startSession(w http.ResponseWriter, user *models.User) error {
 	sessionToken := uuid.NewString() // or another secure random string
-	sessionExpiration := time.Now().Add(12 * time.Hour)
+	sessionExpiration := time.Now().Add(96 * time.Hour)
 	result := db.DB.DB.Exec("INSERT INTO sessions (session_token, user_id, expiration) VALUES (?, ?, ?)",
 		sessionToken, user.ID, sessionExpiration)
 	if result.Error != nil {

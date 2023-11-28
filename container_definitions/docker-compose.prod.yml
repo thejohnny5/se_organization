@@ -19,6 +19,8 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - DB_PORT=${DB_PORT}
       - mode=prod
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
     networks:
       - se_org_network
 

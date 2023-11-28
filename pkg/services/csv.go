@@ -2,16 +2,19 @@ package services
 
 import (
 	"encoding/csv"
+	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/thejohnny5/se_organization/pkg/models"
 )
 
-var headers []string = []string{"id", "company", "title", "location", "application_status",
+var headers []string = []string{"id", "date_applied", "company", "title", "location", "application_status",
 	"application_type", "resume", "cover_letter", "posting_url", "salary_low", "salary_high", "notes"}
 var set = genSet(headers)
 
@@ -40,20 +43,59 @@ type JobHeaderMap struct {
 	DBField   string `json:"dbField"`
 }
 
-func convertToJobStruct(dbRecord map[string]string) *models.JobApplication {
+func convertToJobStruct(dbRecord map[string]string, app_status_dd []models.Dropdown, app_type_dd []models.Dropdown) *models.JobApplication {
 	jobApp := &models.JobApplication{}
 	for key, value := range dbRecord {
 		switch key {
+		case "date_applied":
+			// convert to timestamp
+			t, err := time.Parse("01-02-2006", value)
+			if err != nil {
+				log.Printf("Error parsing date for val: %s", value)
+				continue
+			}
+			jobApp.DateApplied = &t
 		case "company":
 			jobApp.Company = value
 		case "title":
 			jobApp.Title = value
 		case "location":
-			jobApp.Location = &value
+			jobApp.Location = value
 		case "application_status":
-			jobApp.ApplicationStatusId = nil
+			id, err := parseDropdown(value, app_status_dd)
+			log.Printf("Value: %s, id: %d", value, id)
+			if err != nil {
+				log.Printf("Error parsing uint for val: %s", value)
+				continue
+			}
+			jobApp.ApplicationStatusId = &id
 		case "application_type":
-			jobApp.ApplicationTypeId = nil
+			id, err := parseDropdown(value, app_type_dd)
+			if err != nil {
+				log.Printf("Error parsing uint for val: %s", value)
+				continue
+			}
+			jobApp.ApplicationTypeId = &id
+		case "posting_url":
+			jobApp.PostingUrl = value
+		case "notes":
+			jobApp.Notes = value
+		case "salary_low":
+			salary, err := strconv.Atoi(value)
+			if err != nil {
+				log.Printf("Could not string: '%s' to salary", value)
+				continue
+			}
+			jobApp.SalaryLow = salary
+		case "salary_high":
+			salary, err := strconv.Atoi(value)
+			if err != nil {
+				log.Printf("Could not string: '%s' to salary", value)
+				continue
+			}
+			jobApp.SalaryHigh = salary
+		default:
+			log.Printf("None for key: %s", key)
 		}
 	}
 	return jobApp
@@ -65,17 +107,18 @@ func WriteJobsToClient(w http.ResponseWriter, jobs *[]models.JobApplication) {
 	for _, job := range *jobs {
 		line := []string{
 			strconv.Itoa(int(job.ID)),
+			job.DateApplied.Format("01-02-2006"),
 			job.Company,
 			job.Title,
-			safeDeref(job.Location),
+			job.Location,
 			job.ApplicationStatus.Text,
 			job.ApplicationType.Text,
 			job.Resume.DocumentName,
 			job.CoverLetter.DocumentName,
-			safeDeref(job.PostingUrl),
-			safeDerefInt(job.SalaryLow),
-			safeDerefInt(job.SalaryHigh),
-			safeDeref(job.Notes),
+			job.PostingUrl,
+			strconv.Itoa(job.SalaryLow),
+			strconv.Itoa(job.SalaryHigh),
+			job.Notes,
 		}
 		if err := csvWriter.Write(line); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -104,7 +147,7 @@ func safeDeref(s *string) string {
 	return ""
 }
 
-func WriteJobsToDB(f *csv.Reader, mappings []JobHeaderMap, userId *uint) error {
+func WriteJobsToDB(f *csv.Reader, mappings []JobHeaderMap, userId *uint, db *models.DBClient) error {
 	// Map our first csv row headers to the appropriate index in array
 	csvHeaders, err := f.Read()
 	if err != nil {
@@ -127,7 +170,13 @@ func WriteJobsToDB(f *csv.Reader, mappings []JobHeaderMap, userId *uint) error {
 			}
 		}
 	}
-	log.Printf("DBColumn: %+v", dbColumnIndices)
+
+	// Get dropdown options for application status and type
+	var app_stat_dd []models.Dropdown
+	var app_type_dd []models.Dropdown
+	db.DB.Where("user_id is NULL").Where("table_type = ?", "application_status").Find(&app_stat_dd)
+	db.DB.Where("user_id is NULL").Where("table_type = ?", "application_type").Find(&app_type_dd)
+
 	// Read through rest of rows and apply the mappings
 	for {
 		record, err := f.Read()
@@ -143,9 +192,21 @@ func WriteJobsToDB(f *csv.Reader, mappings []JobHeaderMap, userId *uint) error {
 			dbRecord[dbField] = record[index]
 		}
 
-		job := convertToJobStruct(dbRecord)
+		job := convertToJobStruct(dbRecord, app_stat_dd, app_type_dd)
 		job.UserID = *userId
-		log.Printf("DBRecord: %+v", job)
+		db.DB.Save(&job)
 	}
 	return nil
+}
+
+func parseDropdown(s string, dd []models.Dropdown) (uint, error) {
+	// Try to match the application status to number in DB
+	for _, drop := range dd {
+		// try to match drop text
+		if strings.EqualFold(s, drop.Text) {
+			return drop.ID, nil
+		}
+	}
+	// if No match, returns 0
+	return 0, errors.New("improper value for s")
 }
