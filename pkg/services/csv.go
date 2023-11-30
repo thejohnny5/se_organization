@@ -133,19 +133,19 @@ func WriteJobsToClient(w http.ResponseWriter, jobs *[]models.JobApplication) {
 	}
 }
 
-func safeDerefInt(i *int) string {
-	if i != nil {
-		return strconv.Itoa(*i)
-	}
-	return ""
-}
+// func safeDerefInt(i *int) string {
+// 	if i != nil {
+// 		return strconv.Itoa(*i)
+// 	}
+// 	return ""
+// }
 
-func safeDeref(s *string) string {
-	if s != nil {
-		return *s
-	}
-	return ""
-}
+// func safeDeref(s *string) string {
+// 	if s != nil {
+// 		return *s
+// 	}
+// 	return ""
+// }
 
 func WriteJobsToDB(f *csv.Reader, mappings []JobHeaderMap, userId *uint, db *models.DBClient) error {
 	// Map our first csv row headers to the appropriate index in array

@@ -37,6 +37,14 @@ const oauthGoogleUrlAPI = "https://www.googleapis.com/oauth2/v2/userinfo?access_
 
 var googleAuthConfig *oauth2.Config
 
+func redirectProd(w http.ResponseWriter, r *http.Request, endpoint string, code int) {
+	if os.Getenv("mode") == "prod" {
+		http.Redirect(w, r, endpoint, code)
+	} else {
+		http.Redirect(w, r, "http://localhost:9002"+endpoint, code)
+	}
+}
+
 func GetGoogleAuthConfig() *oauth2.Config {
 	if googleAuthConfig == nil {
 		googleAuthConfig = &oauth2.Config{
@@ -60,7 +68,7 @@ func randomizeString(w http.ResponseWriter, numBytes uint) (string, error) {
 	state := base64.URLEncoding.EncodeToString(b)
 	var expiration = time.Now().Add(365 * 24 * time.Hour)
 	log.Printf("State randomized: %s\n", state)
-	cookie := http.Cookie{Name: "oauthstate", Value: state, Expires: expiration}
+	cookie := http.Cookie{Name: "oauthstate", Value: state, Expires: expiration, SameSite: http.SameSiteNoneMode, Secure: true, Domain: "localhost"}
 	http.SetCookie(w, &cookie)
 	return state, nil
 }
@@ -85,16 +93,16 @@ func (db *OAuthDBHandler) HandleGoogleCallback(w http.ResponseWriter, r *http.Re
 
 	if err != nil {
 		log.Println("no cookie present on user browser")
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		redirectProd(w, r, "/", http.StatusTemporaryRedirect)
 		// w.Write([]byte(`{"authenticated":false}"`))
 
 		return
 	}
-	if r.FormValue("state") != oauthState.Value {
+	if r.FormValue("state") != oauthState.Value && os.Getenv("mode") != "dockerdev" {
 		log.Println("invalid oauth google state")
 		log.Printf("state: %s\n", r.FormValue("state"))
 		log.Printf("should be: %s\n", oauthState.Value)
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		redirectProd(w, r, "/", http.StatusTemporaryRedirect)
 		// w.Write([]byte(`{"authenticated":false}"`))
 
 		return
@@ -103,7 +111,7 @@ func (db *OAuthDBHandler) HandleGoogleCallback(w http.ResponseWriter, r *http.Re
 
 	if err != nil {
 		log.Println(err.Error())
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		redirectProd(w, r, "/", http.StatusTemporaryRedirect)
 		// w.Write([]byte(`{"authenticated":false}"`))
 
 		return
@@ -123,7 +131,7 @@ func (db *OAuthDBHandler) HandleGoogleCallback(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	redirectProd(w, r, "/", http.StatusSeeOther)
 	// w.Header().Set("Content-Type", "application/json")
 	// w.Write([]byte(`{"authenticated":true}"`))
 }

@@ -11,6 +11,7 @@ export default defineConfig({
       // Proxying API requests to backend server running on port 8080
       '/api': config(),
       '/oauth': config(),
+      '/assets': config(),
     },
   },
 });

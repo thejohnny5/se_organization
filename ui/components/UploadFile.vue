@@ -1,10 +1,16 @@
 <template>
-    <div v-if="isPopupVisible" >
+    <div v-if="isPopupVisible" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+      <div class="w-72 max-h-[70vh] overflow-y-auto border border-slate-400 bg-slate-500 p-4 rounded-lg shadow-xl">
+
     <div>
       <input type="file" @change="handleFileUpload" />
     </div>
         
     <div v-if="formDataRef.file">
+        <div>
+          <p v-if="uploadError.err">{{ uploadError.msg }}</p>
+          <p class="text-red-50">{{ `Map your csv data by matching your csv column to the correct header.` }}</p>
+        </div>
         <div v-for="(jh, index) in JobHeaders">
             <label>{{ jh.dbField }}<span v-if="jh.dbField=='company' || jh.dbField=='title'">*</span></label>
             <select v-model="jh.csvHeader" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full">
@@ -18,6 +24,7 @@
     </div>
     <button class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded w-full" @click="closePopup">Close</button>
     </div>
+    </div>
   </template>
   
   <script>
@@ -28,6 +35,10 @@ import axios from 'axios';
     name: 'UploadCSV',
     setup(){
         const JobHeaders = ref([]);
+        const uploadError = ref({
+          err: false,
+          msg: ""
+        })
         const constructJobHeaders = () => {
             const options = ["date_applied", "company", "title", "location", "application_status",
         "application_type", "resume", "cover_letter", "posting_url", "salary_low", "salary_high", "notes"]
@@ -61,7 +72,7 @@ import axios from 'axios';
             reader.readAsText(file);
         }
         }
-
+        
         const submitForm = () => {
           if (!formDataRef.value.file) {
             console.log("NO FILE");
@@ -78,7 +89,11 @@ import axios from 'axios';
               // refresh page
               window.location.reload();
             })
-            .catch(err=>console.error(err)); // Popup with error
+            .catch(err=>{
+              uploadError.value.err = true;
+              uploadError.value.msg = err;
+              console.error(err);
+            }); // Popup with error
         // Handle the form submission, e.g., send data to a server
       }
       return {
@@ -86,6 +101,7 @@ import axios from 'axios';
         formDataRef,
         headers,
         JobHeaders,
+        uploadError,
         openPopup,
         closePopup,
         handleFileUpload,

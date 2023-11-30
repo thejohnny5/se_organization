@@ -1,55 +1,46 @@
 <template>
+  <div class="flex flex-col">
+    <Navbar />
     <div>
-        <div v-for="file in files" :key="file.id">
-            <div>
-                {{ file.id }}
-            </div>
-            <div>
-                {{ file.document_name }}
-            </div>
-            <div>
-                {{ file.type_of_document }}
-            </div>
-            <div>
-                {{ file.notes }}
-            </div>
-            <object :data="file.download_path" type="application/pdf" width="50%" height="200px">
-                <p>Could not load PDF content. Your browser may not have a PDF plugin enabled, or the server is not serving the PDF correctly.</p>
-            </object>
-        </div>
+      <button class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-1/5" @click="showUploadFile">Upload Document</button>
+      <UploadPDF ref="UploadPDFRef" />
     </div>
+    <FilesTable />
+  </div>
 </template>
 
 <script>
-  import { ref, onMounted, defineComponent } from 'vue';
   import axios from 'axios';
-  
+  import FilesTable from './../components/FilesTable.vue'
+  import Navbar from './../components/Navbar.vue'
+  import UploadPDF from './../components/UploadPDF.vue'
+  import { useRouter } from 'vue-router';
+  import { defineComponent, ref, onMounted } from 'vue';
   export default defineComponent({
-    name: 'Files',
-    setup() {
-      const files = ref([]);
-    //   const currJob = ref({
-    //     "company": "",
-    //     "title": "",
-    //     "location": "",
-    //     "notes": "",
-    //   })
-      // Fetch jobs from the API
-      const fetchJobs = async () => {
-        try {
-          const response = await axios.get('/api/document');
-          files.value = response.data;
-        } catch (error) {
-          console.error('Failed to fetch jobs', error);
+    name: "Jobs",
+    components: {FilesTable, Navbar, UploadPDF},
+    setup(){
+      const validateCred = () => {
+        axios.get('/api/validate')
+        .then(()=>{})
+        .catch(err=>{
+          console.error('Not logged in');
+          router.push("/");
+        })
+      }
+
+      onMounted(validateCred)
+      const UploadPDFRef = ref(null);
+
+      const showUploadFile = () => {
+          if (UploadPDFRef.value){
+            UploadPDFRef.value.openPopup();
+          }
         }
-      };
-  
-      // Call the fetchJobs function on component mount
-      onMounted(fetchJobs);
-  
       return {
-        files,
-      };
-    }
-  });
+        UploadPDFRef,
+        showUploadFile
+      }
+    }})
+
 </script>
