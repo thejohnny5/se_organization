@@ -1,15 +1,33 @@
 <template>
-  <div class="flex flex-row justify-end">
-    <nav class="flex flex-row bg-gray-700 h-10 w-1/5 ">
-      <ul class="w-full flex flex-row space-x-12 items-center justify-center">
-        <!-- <li><img :src="Logo" alt="Logo" class="height-50"></li> -->
-        <li><router-link to="/home">Home</router-link></li>
-        <!-- <li><router-link to="/about">About</router-link></li> -->
-        <li @click="logout" v-bind:style="{cursor: 'pointer'}">Logout</li>
-      </ul>
-    </nav>
-  </div>
-  
+<div class="flex flex-row justify-end">
+  <nav class="flex flex-row bg-gray-500 h-10 w-1/4 rounded-lg shadow-md border border-gray-300">
+    <ul class="w-full flex flex-row space-x-12 items-center justify-center">
+      <!-- <li><img :src="Logo" alt="Logo" class="h-10"></li> -->
+      <li class="hover:bg-gray-700 rounded-md">
+        <router-link 
+          to="/home" 
+          class="px-3 py-2 transition-colors duration-200"
+          :class="{ 'underline text-white': $route.path === '/home' }">
+          Home
+        </router-link>
+      </li>
+      <li class="hover:bg-gray-700 rounded-md">
+        <router-link 
+          to="/files" 
+          class="px-3 py-2 transition-colors duration-200"
+          :class="{ 'underline text-white': $route.path === '/files' }">
+          Files
+        </router-link>
+      </li>
+      <li 
+        @click="logout" 
+        class="hover:bg-gray-700 rounded-md px-3 py-2 cursor-pointer transition-colors duration-200">
+        Logout
+      </li>
+    </ul>
+  </nav>
+</div>
+
   </template>
   
   <script>

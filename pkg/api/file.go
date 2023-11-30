@@ -61,6 +61,7 @@ func (db *FileDBHandler) UploadFile(w http.ResponseWriter, r *http.Request) {
 	// Get file info
 	file, fileHeader, err := r.FormFile("file")
 	if err != nil {
+		log.Println("NO FILE")
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}

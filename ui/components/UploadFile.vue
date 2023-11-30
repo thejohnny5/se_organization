@@ -1,5 +1,7 @@
 <template>
-    <div v-if="isPopupVisible" >
+    <div v-if="isPopupVisible" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+      <div class="w-72 max-h-[70vh] overflow-y-auto border border-slate-400 bg-slate-500 p-4 rounded-lg shadow-xl">
+
     <div>
       <input type="file" @change="handleFileUpload" />
     </div>
@@ -17,6 +19,7 @@
  
     </div>
     <button class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded w-full" @click="closePopup">Close</button>
+    </div>
     </div>
   </template>
   

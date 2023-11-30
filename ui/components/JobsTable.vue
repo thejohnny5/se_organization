@@ -1,10 +1,13 @@
 <template>
     <div class="bg-gray-800 text-white p-6">
-      <button class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" @click="toggleSubmitRow">Create New Job Application</button>
 
-      <div>
-        <span>Items: {{ jobs.length }}/{{ jobs.length }}</span>
-      </div>
+      <!-- <div class="flex justify-between mb-1">
+        <div class="flex flex-row bg-gray-500 h-10 w-1/6 self-center justify-center items-center rounded-lg shadow-md border border-gray-300">
+          <span>Count: {{ jobs.length }}</span>
+
+        </div>
+      </div> -->
+
 
       <table class="min-w-full leading-normal">
         <tr class="bg-gray-700">
@@ -23,7 +26,7 @@
         <tr v-if="showSubmitRow" class="bg-gray-400 border-b border-gray-700">
   
         <td class="border px-2 py-2">
-          <VueDatePicker class="bg-gray-800 text-black border-gray-700" v-model="jobToSubmit.date_applied">{{jobToSubmit.date_applied}}</VueDatePicker>
+          <VueDatePicker class="my-date-picker" v-model="jobToSubmit.date_applied">{{jobToSubmit.date_applied}}</VueDatePicker>
         </td>
   
         <td class="border px-2 py-2">
@@ -77,7 +80,7 @@
               {{ job.date_applied }}
             </div>
             <div v-else>
-              <VueDatePicker class="bg-gray-800 text-white border-gray-700" v-model="job.editData.date_applied">{{ job.editData.date_applied }}</VueDatePicker>
+              <VueDatePicker class="my-date-picker" v-model="job.editData.date_applied">{{ job.editData.date_applied }}</VueDatePicker>
             </div>
           </td>
           <td class="border px-2 py-2">
@@ -92,7 +95,7 @@
   
           <td class="border px-2 py-2">
             <div v-if="!job.isEditing">
-              <a :href="formatUrl(job.posting_url)" target="_blank">{{ job.title }}</a>
+              <a :href="formatUrl(job.posting_url)" target="_blank" class="text-blue-500 hover:text-blue-600">{{ job.title }}</a>
             </div>
             <div v-else>
               <input v-model="job.editData.title" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" />
@@ -110,14 +113,14 @@
           </td>
   
           <td class="border px-4 py-2" v-if="!job.isEditing">{{ job.application_status }}</td>
-          <td v-else>
+          <td v-else class="border">
             <select v-model="job.editData.application_status_id" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full">
               <option v-for="status of appStatus" :key="status.id" :value="status.id">{{ status.text }}</option>
             </select>
           </td>
   
           <td class="border px-4 py-2" v-if="!job.isEditing">{{ job.application_type }}</td>
-          <td v-else>
+          <td v-else class="border">
             <select v-model="job.editData.application_type_id" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full">
               <option v-for="status of appType" :key="status.id" :value="status.id">{{ status.text }}</option>
             </select>
@@ -131,7 +134,7 @@
           </td> -->
   
           <td class="border px-1 py-2">
-            <div v-if="!job.isEditing">${{ job.salary_low }}-{{ job.salary_high }}</div>
+            <div v-if="!job.isEditing">{{ formatSalary(job.salary_low, job.salary_high) }}</div>
             <div v-else>
               <input v-model="job.editData.salary_low" type="number" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full" />
               <input v-model="job.editData.salary_high" type="number" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full mt-2" />
@@ -145,17 +148,41 @@
             </div>
           </td>
   
-          <td class="border">
-            <p v-if="job.confirmDelete">Confirm Delete</p>
-            <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full" v-if="job.confirmDelete" @click="deleteJob(index)">DELETE</button>
-            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full" v-else-if="!job.isEditing" @click="toggleEdit(index)">Edit</button>
-            <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full" v-else @click="updateJob(index)">Save</button>
+          <td class="border p-2 space-y-2">
+            <!-- Confirm delete prompt -->
+            <p v-if="job.confirmDelete" class="text-red-600 font-bold">Confirm Delete?</p>
+            
+            <!-- Confirm Delete Button -->
+            <button v-if="job.confirmDelete" @click="deleteJob(index)" class="bg-red-600 hover:bg-red-800 text-white font-bold py-2 px-4 rounded w-full transition-colors duration-150">
+              DELETE
+            </button>
 
-            <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full" v-if="job.confirmDelete" @click="warn(index)">CANCEL</button> 
-            <button class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded w-full" v-else-if="!job.isEditing" @click="warn(index)">Delete</button>
+            <!-- Edit Button -->
+            <button v-else-if="!job.isEditing" @click="toggleEdit(index)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full transition-colors duration-150">
+              Edit
+            </button>
 
-            <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full" v-else @click="toggleEdit(index)">Cancel</button>
-          </td>
+            <!-- Save Button -->
+            <button v-else @click="updateJob(index)" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full transition-colors duration-150">
+              Save
+            </button>
+
+            <!-- Cancel Delete Button -->
+            <button v-if="job.confirmDelete" @click="warn(index)" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded w-full transition-colors duration-150">
+              CANCEL
+            </button>
+
+            <!-- Delete Button -->
+            <button v-else-if="!job.isEditing" @click="warn(index)" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full transition-colors duration-150">
+              Delete
+            </button>
+
+            <!-- Cancel Edit Button -->
+            <button v-else @click="toggleEdit(index)" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded w-full transition-colors duration-150">
+              Cancel
+            </button>
+        </td>
+
         </tr>
       </table>
     </div>
@@ -198,8 +225,12 @@
         })
         // Fetch jobs from the API
   
-        const toggleSubmitRow = () => {
-          showSubmitRow.value = !showSubmitRow.value;
+        const openSubmitRow = () => {
+          showSubmitRow.value = true;
+        }
+
+        const closeSubmitRow = () => {
+          showSubmitRow.value = false;
         }
   
         const fetchDropDownOptions = async () => {
@@ -213,6 +244,25 @@
           }
         }
 
+        const formatting_options = {
+          style: 'currency',
+          currency: 'USD',
+          minimumFractionDigits: 0,
+        }
+        const dollarFormat = new Intl.NumberFormat("en-us", formatting_options);
+
+        const formatSalary = (salary_low, salary_high) => {
+          // if one or the other
+          if (!salary_low || !salary_high){
+            if (!salary_low && !salary_high) return "";
+            return !salary_low ? `${dollarFormat.format(salary_high)}` : `${dollarFormat.format(salary_low)}`;
+          }
+
+          return `${dollarFormat.format(salary_low)}-${dollarFormat.format(salary_high)}`
+            // if both are 0, return empty string
+            // if only one is 0, return the other with $ before it
+          // return entire range
+        }
         const fetchDocumentOptions = async () => {
             axios.get('/api/document')
             .then(response=>{
@@ -271,7 +321,7 @@
         }
   
         const clearJobForm = () => {
-          toggleSubmitRow();
+          closeSubmitRow();
           jobToSubmit.value = {...defaultJobForm}
   
         }
@@ -328,10 +378,12 @@
           appType,
           jobToSubmit,
           resumes,
+          formatSalary,
           fetchDocumentOptions,
           warn,
           clearJobForm,
-          toggleSubmitRow,
+          openSubmitRow,
+          closeSubmitRow,
           toggleEdit,
           formatUrl,
           updateJob,
@@ -342,5 +394,48 @@
     });
     </script>
     
-    <style scoped>
+    <style>
+/* Specific styles for the date picker */
+.my-date-picker .dp__input {
+  background-color: #2D3748; /* bg-gray-800 */
+  color: #E2E8F0; /* text-gray-200 */
+  border: 1px solid #4A5568; /* border-gray-700 */
+}
+
+.my-date-picker .dp__input:hover,
+.my-date-picker .dp__input_focus {
+  border-color: #4A5568; /* Hover state for the border */
+}
+
+/* You may also need to set styles for the calendar dropdown */
+.my-date-picker .dp__menu {
+  background: #2D3748; /* bg-gray-800 */
+  color: #E2E8F0; /* text-gray-200 */
+  border: 1px solid #4A5568; /* border-gray-700 */
+}
+
+/* And for the disabled state */
+.my-date-picker .dp__disabled {
+  background: #A0AEC0; /* bg-gray-400 */
+  color: #718096; /* text-gray-500 */
+}
+
+/* If there are any icons in the date picker */
+.my-date-picker .dp__input_icons {
+  color: #CBD5E0; /* text-gray-400 */
+}
+
+/* And for the buttons inside the date picker if any */
+.my-date-picker .dp__action_button,
+.my-date-picker .dp__action_select {
+  background: #2B6CB0; /* blue-700 */
+  color: #FFFFFF; /* White text for buttons and selections */
+}
+
+.my-date-picker .dp__action_button:hover,
+.my-date-picker .dp__action_select:hover {
+  background: #2C5282; /* blue-800 for hover states */
+}
+
     </style>
+    

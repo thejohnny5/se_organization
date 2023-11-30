@@ -1,12 +1,19 @@
 <template>
   <div class="flex flex-col">
     <Navbar />
-    <button class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-1/5" @click="downloadCSV">Download as CSV</button>
-    <div>
-      <button class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-1/5" @click="showUploadFile">Upload From CSV</button>
+    <div class="m-5">
+    <div class="flex flex-col">
+      <div class="flex justify-between items-center">
+        <div>
+          <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" @click="showUploadFile">Upload From CSV</button>
+          <button class="bg-gray-300 hover:bg-gray-400 text-black py-2 px-4 rounded ml-2" @click="downloadCSV">Download as CSV</button>
+        </div>
+        <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" @click="showUploadJob">Create New Job Application</button>
+      </div>
       <UploadFile ref="uploadFileRef" />
+      </div>
+    <JobsTable ref="jobTableRef"/>
     </div>
-    <JobsTable />
   </div>
 </template>
 
@@ -23,22 +30,28 @@ export default defineComponent({
   setup(){
     const router = useRouter();
     const uploadFileRef = ref(null);
-        
+    const jobTableRef = ref(null);
     const validateCred = () => {
       axios.get('/api/validate')
-      .then(res=>console.log(res))
+      .then(()=>{})
       .catch(err=>{
         console.error('Not logged in');
         router.push("/");
       })
     }
     onMounted(validateCred)
+    
     const showUploadFile = () => {
           if (uploadFileRef.value){
             uploadFileRef.value.openPopup();
           }
         }
 
+    const showUploadJob = () => {
+      if (jobTableRef.value){
+        jobTableRef.value.openSubmitRow();
+      }
+    }
     const downloadCSV = () => {
       axios.get('/api/job/csvdownload', {
         responseType: 'blob'
@@ -57,6 +70,8 @@ export default defineComponent({
     }
     return {
       uploadFileRef,
+      jobTableRef,
+      showUploadJob,
       downloadCSV,
       showUploadFile
     }
