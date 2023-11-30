@@ -44,12 +44,14 @@
   
         <td class="border px-2 py-2">
           <select v-model="jobToSubmit.application_status_id" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full">
-              <option v-for="status of appStatus" :key="status.id" :value="status.id">{{ status.text }}</option>
+            <option :value="null"> </option>  
+            <option v-for="status of appStatus" :key="status.id" :value="status.id">{{ status.text }}</option>
           </select> 
         </td>
         <td class="border px-2 py-2">
           <select v-model="jobToSubmit.application_type_id" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full">
-              <option v-for="status of appType" :key="status.id" :value="status.id">{{ status.text }}</option>
+            <option :value="null"> </option>  
+            <option v-for="status of appType" :key="status.id" :value="status.id">{{ status.text }}</option>
           </select> 
         </td>
   
@@ -115,6 +117,7 @@
           <td class="border px-4 py-2" v-if="!job.isEditing">{{ job.application_status }}</td>
           <td v-else class="border">
             <select v-model="job.editData.application_status_id" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full">
+              <option :value="null"> </option>  
               <option v-for="status of appStatus" :key="status.id" :value="status.id">{{ status.text }}</option>
             </select>
           </td>
@@ -122,6 +125,7 @@
           <td class="border px-4 py-2" v-if="!job.isEditing">{{ job.application_type }}</td>
           <td v-else class="border">
             <select v-model="job.editData.application_type_id" class="bg-gray-700 text-white border-none rounded py-2 px-4 w-full">
+              <option :value="null"> </option>  
               <option v-for="status of appType" :key="status.id" :value="status.id">{{ status.text }}</option>
             </select>
           </td>

@@ -1,34 +1,44 @@
 <template>
-<div class="flex flex-row justify-end">
-  <nav class="flex flex-row bg-gray-500 h-10 w-1/4 rounded-lg shadow-md border border-gray-300">
-    <ul class="w-full flex flex-row space-x-12 items-center justify-center">
-      <!-- <li><img :src="Logo" alt="Logo" class="h-10"></li> -->
-      <li class="hover:bg-gray-700 rounded-md">
-        <router-link 
-          to="/home" 
-          class="px-3 py-2 transition-colors duration-200"
-          :class="{ 'underline text-white': $route.path === '/home' }">
-          Home
-        </router-link>
-      </li>
-      <li class="hover:bg-gray-700 rounded-md">
-        <router-link 
-          to="/files" 
-          class="px-3 py-2 transition-colors duration-200"
-          :class="{ 'underline text-white': $route.path === '/files' }">
-          Files
-        </router-link>
-      </li>
-      <li 
-        @click="logout" 
-        class="hover:bg-gray-700 rounded-md px-3 py-2 cursor-pointer transition-colors duration-200">
-        Logout
-      </li>
-    </ul>
-  </nav>
-</div>
-
+  <div class="flex justify-end w-full">
+    <div class="bg-gray-500 rounded-lg shadow-md border border-gray-300 w-1/4">
+      <!-- Logo container with some padding and a defined height -->
+      <div class="flex flex-row items-center h-10">
+        <div class="h-full p-2">
+          <img src="./../assets/logo1.png" alt="Logo" class="h-full">
+        </div>
+  
+        <!-- Navigation Links -->
+        <nav class="flex-grow">
+          <ul class="flex flex-row space-x-12 justify-end items-center h-full">
+            <li class="hover:bg-gray-700 rounded-md">
+              <router-link 
+                to="/home" 
+                class="px-3 py-2 transition-colors duration-200"
+                :class="{ 'underline text-white': $route.path === '/home' }">
+                Home
+              </router-link>
+            </li>
+            <li class="hover:bg-gray-700 rounded-md">
+              <router-link 
+                to="/files" 
+                class="px-3 py-2 transition-colors duration-200"
+                :class="{ 'underline text-white': $route.path === '/files' }">
+                Files
+              </router-link>
+            </li>
+            <li 
+              @click="logout" 
+              class="hover:bg-gray-700 rounded-md px-3 py-2 cursor-pointer transition-colors duration-200">
+              Logout
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
   </template>
+  
+
   
   <script>
   import { ref } from 'vue';

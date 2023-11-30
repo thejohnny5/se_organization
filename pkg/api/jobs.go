@@ -56,7 +56,7 @@ func (db *JobsDBHandler) PreloadDocument(claims Claims, jobs *[]models.JobApplic
 	return db.DB.DB.Preload("ApplicationStatus").Preload("ApplicationType").
 		Preload("Resume").Preload("CoverLetter").
 		Where("user_id = ?", claims.UserID).
-		Order("created_at DESC").Find(jobs) // Notice 'jobs' instead of '&jobs'
+		Order("created_at ASC").Find(jobs) // Notice 'jobs' instead of '&jobs'
 }
 
 // GetJobs retrieves a list of job applications associated with the user from the database.
